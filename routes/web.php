@@ -13,6 +13,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// 博客首页路由，由 HomeController 的 index 方法处理
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
