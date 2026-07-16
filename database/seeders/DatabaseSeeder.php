@@ -16,10 +16,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // 创建默认博主账号
+        // 创建默认博主账号，同时标记为管理员，可登录 Filament 后台
         $user = User::factory()->create([
-            'name'  => '阳光每一天',
-            'email' => 'blogger@example.com',
+            'name'     => '阳光每一天',
+            'email'    => 'admin@example.com',
+            'password' => bcrypt('password'),
+            'is_admin' => true,
         ]);
 
         // 创建 6 个分类

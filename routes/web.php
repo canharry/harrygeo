@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\LanguageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,3 +28,8 @@ Route::get('/categories/{slug}', [App\Http\Controllers\CategoryController::class
 
 // 标签归档页路由
 Route::get('/tags/{slug}', [App\Http\Controllers\TagController::class, 'show'])->name('tags.show');
+
+// 后台语言切换路由
+Route::post('/admin/language/{locale}', [LanguageController::class, 'switch'])
+    ->name('admin.language.switch')
+    ->whereIn('locale', ['zh_CN', 'en']);
