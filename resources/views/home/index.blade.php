@@ -28,7 +28,7 @@
             <!-- 博主信息卡片 -->
             <div class="card profile-card">
                 <div class="profile-cover"></div>
-                <img src="{{ $blogger['avatar'] }}" alt="博主头像" class="profile-avatar">
+                <x-image-placeholder :src="$blogger['avatar']" alt="博主头像" type="avatar" class="profile-avatar" />
                 <div class="profile-body">
                     <h2 class="profile-name">{{ $blogger['nickname'] }}</h2>
                     <p class="profile-bio">{{ $blogger['signature'] }}</p>
@@ -55,9 +55,9 @@
                 <ul class="hot-list">
                     @foreach ($hotPosts as $post)
                         <li class="hot-item">
-                            <img src="{{ $post->cover_image }}" alt="{{ $post->title }}" class="hot-thumb">
+                            <x-image-placeholder :src="$post->cover_image" :alt="$post->title" type="thumb" class="hot-thumb" />
                             <div class="hot-info">
-                                <a href="#" class="hot-title">{{ Str::limit($post->title, 30) }}</a>
+                                <a href="{{ route('posts.show', $post->slug) }}" class="hot-title">{{ Str::limit($post->title, 30) }}</a>
                                 <span class="hot-views"><i class="bi bi-eye"></i> {{ $post->views }}</span>
                             </div>
                         </li>
@@ -71,7 +71,7 @@
                 <ul class="category-list">
                     @foreach ($categories as $category)
                         <li>
-                            <a href="#" style="--cat-color: {{ $category->color ?? '#ff7eb3' }}">
+                            <a href="{{ route('categories.show', $category->slug) }}" style="--cat-color: {{ $category->color ?? '#ff7eb3' }}">
                                 <i class="bi {{ $category->icon ?? 'bi-folder' }}"></i>
                                 <span>{{ $category->name }}</span>
                                 <span class="category-count">{{ $category->posts_count ?? $category->posts->count() }}</span>
@@ -86,7 +86,7 @@
                 <h3 class="card-title"><i class="bi bi-cloud"></i> 标签云</h3>
                 <div class="tag-cloud">
                     @foreach ($tags as $tag)
-                        <a href="#" class="tag-item" style="--tag-color: {{ $tag->color ?? '#667eea' }}">{{ $tag->name }}</a>
+                        <a href="{{ route('tags.show', $tag->slug) }}" class="tag-item" style="--tag-color: {{ $tag->color ?? '#667eea' }}">{{ $tag->name }}</a>
                     @endforeach
                 </div>
             </div>
@@ -107,25 +107,25 @@
             <!-- 文章分类标题栏 -->
             <div class="section-header">
                 <h2><i class="bi bi-stars"></i> 最新文章</h2>
-                <a href="#" class="more-link">查看更多 <i class="bi bi-chevron-right"></i></a>
+                <span class="more-link">最新文章</span>
             </div>
 
             <!-- 文章卡片网格 -->
             <div class="post-grid">
                 @foreach ($posts as $post)
                     <article class="post-card">
-                        <a href="#" class="post-image-wrapper">
-                            <img src="{{ $post->cover_image }}" alt="{{ $post->title }}" class="post-image">
+                        <a href="{{ route('posts.show', $post->slug) }}" class="post-image-wrapper">
+                            <x-image-placeholder :src="$post->cover_image" :alt="$post->title" type="card" class="post-image" />
                             <span class="post-category" style="--cat-color: {{ $post->category->color ?? '#ff7eb3' }}">
                                 {{ $post->category->name }}
                             </span>
                         </a>
                         <div class="post-body">
-                            <h3 class="post-title"><a href="#">{{ $post->title }}</a></h3>
+                            <h3 class="post-title"><a href="{{ route('posts.show', $post->slug) }}">{{ $post->title }}</a></h3>
                             <p class="post-summary">{{ Str::limit($post->summary, 70) }}</p>
                             <div class="post-tags">
                                 @foreach ($post->tags->take(3) as $tag)
-                                    <span class="post-tag" style="--tag-color: {{ $tag->color ?? '#667eea' }}">{{ $tag->name }}</span>
+                                    <a href="{{ route('tags.show', $tag->slug) }}" class="post-tag" style="--tag-color: {{ $tag->color ?? '#667eea' }}">{{ $tag->name }}</a>
                                 @endforeach
                             </div>
                             <div class="post-meta">
@@ -141,7 +141,7 @@
 
             <!-- 分页 -->
             <div class="pagination-wrapper">
-                {{ $posts->links() }}
+                {{ $posts->links('pagination.custom') }}
             </div>
         </section>
     </div>

@@ -29,10 +29,10 @@
 
             <!-- 桌面端菜单 -->
             <ul class="nav-menu">
-                <li><a href="{{ route('home') }}" class="active"><i class="bi bi-house-door"></i> 首页</a></li>
-                <li><a href="#"><i class="bi bi-journal-text"></i> 文章</a></li>
-                <li><a href="#"><i class="bi bi-grid"></i> 分类</a></li>
-                <li><a href="#"><i class="bi bi-tag"></i> 标签</a></li>
+                <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}"><i class="bi bi-house-door"></i> 首页</a></li>
+                <li><a href="{{ route('posts.index') }}" class="{{ request()->routeIs('posts.index', 'posts.show') ? 'active' : '' }}"><i class="bi bi-journal-text"></i> 文章</a></li>
+                <li><a href="{{ route('home') }}#categories"><i class="bi bi-grid"></i> 分类</a></li>
+                <li><a href="{{ route('home') }}#tags"><i class="bi bi-tag"></i> 标签</a></li>
                 <li><a href="#"><i class="bi bi-chat-square-heart"></i> 留言</a></li>
                 <li><a href="#"><i class="bi bi-person"></i> 关于</a></li>
             </ul>

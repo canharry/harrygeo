@@ -15,3 +15,15 @@ use Illuminate\Support\Facades\Route;
 
 // 博客首页路由，由 HomeController 的 index 方法处理
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// 文章列表页路由
+Route::get('/posts', [App\Http\Controllers\PostController::class, 'index'])->name('posts.index');
+
+// 文章详情页路由
+Route::get('/posts/{slug}', [App\Http\Controllers\PostController::class, 'show'])->name('posts.show');
+
+// 分类归档页路由
+Route::get('/categories/{slug}', [App\Http\Controllers\CategoryController::class, 'show'])->name('categories.show');
+
+// 标签归档页路由
+Route::get('/tags/{slug}', [App\Http\Controllers\TagController::class, 'show'])->name('tags.show');

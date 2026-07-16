@@ -16,15 +16,10 @@ class PostFactory extends Factory
      */
     public function definition()
     {
-        // 封面图主题词，用于调用图片生成接口
-        $coverThemes = [
-            'anime%20style%20programming%20workspace%20with%20glowing%20screens',
-            'anime%20style%20cat%20sleeping%20on%20laptop%20keyboard%20cute',
-            'anime%20style%20sunset%20mountain%20landscape%20with%20clouds',
-            'anime%20style%20cozy%20coffee%20shop%20with%20warm%20lights',
-            'anime%20style%20starry%20night%20sky%20with%20milky%20way',
-            'anime%20style%20cherry%20blossom%20street%20in%20spring',
-        ];
+        // 封面图暂不设置真实图片地址
+        // 当前图片生成接口会返回带黑边的占位图，因此先留空
+        // 后续接入稳定图片来源后，可在此处恢复图片 URL
+        $coverImage = null;
 
         $title = $this->faker->randomElement([
             '基于 Laravel 构建个人博客的完整实践',
@@ -44,7 +39,7 @@ class PostFactory extends Factory
             'slug'          => Str::slug($title) . '-' . $this->faker->unique()->numberBetween(1, 9999),
             'summary'       => $this->faker->paragraph(2),
             'content'       => $this->faker->paragraphs(6, true),
-            'cover_image'   => 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' . $this->faker->randomElement($coverThemes) . '%2C%20pastel%20colors%2C%20high%20quality%20illustration&image_size=landscape_16_9',
+            'cover_image'   => $coverImage,
             'views'         => $this->faker->numberBetween(100, 9999),
             'likes'         => $this->faker->numberBetween(10, 999),
             'is_published'  => true,

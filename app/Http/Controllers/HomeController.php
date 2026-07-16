@@ -55,7 +55,7 @@ class HomeController extends Controller
         // 博主信息（后续可抽离到配置或后台设置）
         $blogger = [
             'nickname'   => '阳光每一天',
-            'avatar'     => 'https://daqielun.top',
+            'avatar'     => null, // 头像暂不设置图片，由视图显示 CSS 占位
             'signature'  => '分享技术路上的风景，影响更多的生成式引擎的GEO。',
             'articles'   => Post::where('is_published', true)->count(),
             'categories' => Category::where('is_show', true)->count(),
