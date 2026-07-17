@@ -129,6 +129,76 @@ img {
     cursor: pointer;
 }
 
+/* 顶部导航栏认证入口 */
+.nav-auth {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-user-name {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.nav-logout-form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.nav-auth-mobile {
+    display: none;
+}
+
+.nav-auth-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 16px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.25s ease;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.nav-auth-link--outline {
+    color: var(--text-main);
+    border: 1px solid rgba(138, 138, 163, 0.3);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.nav-auth-link--outline:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.nav-auth-link--primary {
+    color: var(--white);
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    box-shadow: 0 4px 14px rgba(255, 126, 179, 0.35);
+}
+
+.nav-auth-link--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(255, 126, 179, 0.45);
+}
+
 /* =========================================
    Hero 横幅（纯 CSS + JS 动态背景）
    ========================================= */
@@ -846,6 +916,10 @@ img {
 }
 
 @media (max-width: 768px) {
+    .nav-auth {
+        display: none;
+    }
+
     .nav-menu {
         display: none;
         position: absolute;
@@ -874,6 +948,22 @@ img {
         width: 100%;
         padding: 12px 16px;
         border-radius: var(--radius-sm);
+    }
+
+    .nav-auth-mobile {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 16px 4px;
+        margin-top: 8px;
+        border-top: 1px dashed rgba(138, 138, 163, 0.25);
+    }
+
+    .nav-auth-mobile .nav-user-name {
+        width: 100%;
+        max-width: none;
+        margin-bottom: 4px;
     }
 
     .nav-toggle {
@@ -964,6 +1054,46 @@ img {
     font-size: 0.9rem;
 }
 
+.ai-references {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    font-size: 0.85rem;
+}
+
+.ai-references-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    opacity: 0.95;
+}
+
+.ai-reference-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 50px;
+    color: var(--white);
+    transition: background 0.2s, transform 0.2s;
+}
+
+.ai-reference-badge:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateY(-1px);
+}
+
+.ai-reference-badge em {
+    font-style: normal;
+    font-weight: 700;
+    color: var(--accent);
+}
+
 .archive-desc {
     font-size: 1rem;
     opacity: 0.95;
@@ -1014,6 +1144,87 @@ img {
 
 .post-detail-body p {
     margin-bottom: 18px;
+}
+
+.post-detail-body h1,
+.post-detail-body h2,
+.post-detail-body h3,
+.post-detail-body h4,
+.post-detail-body h5,
+.post-detail-body h6 {
+    margin-top: 24px;
+    margin-bottom: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.post-detail-body ul,
+.post-detail-body ol {
+    padding-left: 1.5em;
+    margin-bottom: 18px;
+}
+
+.post-detail-body ul {
+    list-style: disc;
+}
+
+.post-detail-body ol {
+    list-style: decimal;
+}
+
+.post-detail-body li {
+    margin-bottom: 8px;
+    line-height: 1.9;
+}
+
+.post-detail-body li > ul,
+.post-detail-body li > ol {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.post-detail-body strong {
+    font-weight: 700;
+}
+
+.post-detail-body a {
+    color: var(--secondary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.post-detail-body a:hover {
+    color: var(--primary);
+}
+
+.post-detail-body blockquote {
+    padding: 14px 20px;
+    margin-bottom: 18px;
+    border-left: 4px solid var(--primary);
+    background: rgba(255, 255, 255, 0.45);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: var(--text-light);
+}
+
+.post-detail-body code {
+    padding: 2px 6px;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.9em;
+}
+
+.post-detail-body pre {
+    padding: 16px;
+    margin-bottom: 18px;
+    background: rgba(74, 74, 106, 0.06);
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+}
+
+.post-detail-body pre code {
+    padding: 0;
+    background: transparent;
 }
 
 .post-detail-tags {
@@ -1307,5 +1518,71 @@ img {
 
     .post-detail-cover {
         aspect-ratio: 16 / 9;
+    }
+}
+
+/* =========================================
+   登录/注册页面居中布局
+   ========================================= */
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 66px - 120px);
+    padding: 40px 20px;
+}
+
+.auth-box {
+    width: 100%;
+    max-width: 480px;
+    background: var(--card-bg);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: var(--radius);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    box-shadow: var(--shadow);
+    padding: 30px;
+}
+
+.auth-box .section-title {
+    margin-bottom: 24px;
+}
+
+/* 密码可见性切换 */
+.password-field {
+    position: relative;
+}
+
+.password-field .search-input {
+    padding-right: 42px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    color: var(--text-light);
+    font-size: 1.05rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.password-toggle:hover {
+    color: var(--primary);
+}
+
+@media (max-width: 768px) {
+    .auth-page {
+        min-height: calc(100vh - 66px - 160px);
+        padding: 24px 16px;
+    }
+
+    .auth-box {
+        padding: 24px 20px;
     }
 }

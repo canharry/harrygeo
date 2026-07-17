@@ -22,7 +22,7 @@ class CategoryFactory extends Factory
         // 预定义的分类图标
         $icons = ['bi-laptop', 'bi-code-square', 'bi-book', 'bi-camera', 'bi-music-note-beamed', 'bi-controller'];
 
-        $name = $this->faker->randomElement([
+        $name = $this->faker->unique()->randomElement([
             '技术随笔',
             '前端开发',
             '后端开发',
@@ -34,7 +34,7 @@ class CategoryFactory extends Factory
 
         return [
             'name'        => $name,
-            'slug'        => Str::slug($name) . '-' . $this->faker->unique()->numberBetween(1, 999),
+            'slug'        => Str::slug($name),
             'description' => $this->faker->sentence(6),
             'icon'        => $this->faker->randomElement($icons),
             'color'       => $this->faker->randomElement($colors),

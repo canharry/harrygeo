@@ -35,7 +35,60 @@
                 <li><a href="{{ route('home') }}#tags"><i class="bi bi-tag"></i> 标签</a></li>
                 <li><a href="#"><i class="bi bi-chat-square-heart"></i> 留言</a></li>
                 <li><a href="#"><i class="bi bi-person"></i> 关于</a></li>
+
+                {{-- 移动端菜单中的登录/注册入口 --}}
+                <li class="nav-auth-mobile">
+                    @auth
+                        <a href="{{ url('/admin/posts/create') }}" class="nav-auth-link nav-auth-link--primary">
+                            <i class="bi bi-pencil-square"></i> 写文章
+                        </a>
+                        <a href="{{ route('profile.edit') }}" class="nav-auth-link nav-auth-link--outline">
+                            <i class="bi bi-person-gear"></i> {{ Auth::user()->name }}
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}" class="nav-logout-form">
+                            @csrf
+                            <button type="submit" class="nav-auth-link nav-auth-link--outline">
+                                <i class="bi bi-box-arrow-right"></i> 退出
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}" class="nav-auth-link nav-auth-link--outline">
+                            <i class="bi bi-box-arrow-in-right"></i> 登录
+                        </a>
+                        <a href="{{ route('register') }}" class="nav-auth-link nav-auth-link--primary">
+                            <i class="bi bi-person-plus"></i> 注册
+                        </a>
+                    @endauth
+                </li>
             </ul>
+
+            <!-- 用户认证入口 -->
+            <div class="nav-auth">
+                @auth
+                    <a href="{{ url('/admin/posts/create') }}" class="nav-auth-link nav-auth-link--primary">
+                        <i class="bi bi-pencil-square"></i> 写文章
+                    </a>
+                    <div class="nav-user">
+                        <a href="{{ route('profile.edit') }}" class="nav-user-name">{{ Auth::user()->name }}</a>
+                        <a href="{{ route('profile.edit') }}" class="nav-auth-link nav-auth-link--outline" title="个人资料">
+                            <i class="bi bi-person-gear"></i>
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}" class="nav-logout-form">
+                            @csrf
+                            <button type="submit" class="nav-auth-link nav-auth-link--outline">
+                                <i class="bi bi-box-arrow-right"></i> 退出
+                            </button>
+                        </form>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" class="nav-auth-link nav-auth-link--outline">
+                        <i class="bi bi-box-arrow-in-right"></i> 登录
+                    </a>
+                    <a href="{{ route('register') }}" class="nav-auth-link nav-auth-link--primary">
+                        <i class="bi bi-person-plus"></i> 注册
+                    </a>
+                @endauth
+            </div>
 
             <!-- 移动端菜单按钮 -->
             <button class="nav-toggle" id="navToggle" aria-label="打开菜单">

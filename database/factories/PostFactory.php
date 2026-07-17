@@ -21,18 +21,7 @@ class PostFactory extends Factory
         // 后续接入稳定图片来源后，可在此处恢复图片 URL
         $coverImage = null;
 
-        $title = $this->faker->randomElement([
-            '基于 Laravel 构建个人博客的完整实践',
-            '如何写出优雅的 CSS 动画效果',
-            'Vue3 Composition API 入门指南',
-            'Docker 部署 Laravel 项目踩坑记录',
-            '我的 2025 年度书单与阅读感悟',
-            '用 PHP 实现一个简单的队列系统',
-            '前端性能优化：从图片懒加载开始',
-            '动漫推荐：这个季度的治愈系番剧',
-            '摄影笔记：如何拍出好看的日落',
-            'MySQL 索引优化实战总结',
-        ]);
+        $title = $this->faker->unique()->sentence(3);
 
         return [
             'title'         => $title,

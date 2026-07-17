@@ -27,6 +27,8 @@ class User extends Authenticatable implements FilamentUser
         'email',
         'password',
         'is_admin',
+        'signature',
+        'avatar',
     ];
 
     /**
@@ -57,7 +59,15 @@ class User extends Authenticatable implements FilamentUser
      */
     public function canAccessFilament(): bool
     {
-        // 仅允许管理员身份的用户登录后台
-        return $this->is_admin === true;
+        // 允许所有已登录用户进入后台编写文章
+        return true;
+    }
+
+    /**
+     * 用户的文章
+     */
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
     }
 }

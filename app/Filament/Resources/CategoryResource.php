@@ -27,6 +27,11 @@ class CategoryResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->is_admin ?? false;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -38,6 +43,7 @@ class CategoryResource extends Resource
                             ->label('名称')
                             ->required()
                             ->maxLength(255)
+                            ->unique(ignoreRecord: true)
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $set('slug', \Illuminate\Support\Str::slug($state));

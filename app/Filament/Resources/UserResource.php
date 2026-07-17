@@ -9,6 +9,9 @@ use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * 用户资源管理
@@ -26,6 +29,38 @@ class UserResource extends Resource
     protected static ?string $modelLabel = '用户';
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->check();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->is_admin ?? false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = auth()->user();
+        return $user->is_admin || $record->id === $user->id;
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->is_admin ?? false;
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (! auth()->user()->is_admin) {
+            $query->where('id', auth()->id());
+        }
+
+        return $query;
+    }
 
     public static function form(Form $form): Form
     {
@@ -47,6 +82,23 @@ class UserResource extends Resource
                             ->unique(ignoreRecord: true)
                             ->maxLength(255),
 
+                        // 个性签名
+                        Forms\Components\Textarea::make('signature')
+                            ->label('个性签名')
+                            ->rows(3)
+                            ->maxLength(255)
+                            ->helperText('将显示在首页与文章详情页的博主卡片中'),
+
+                        // 头像
+                        Forms\Components\FileUpload::make('avatar')
+                            ->label('头像')
+                            ->avatar()
+                            ->disk('public')
+                            ->directory(fn ($record) => 'avatars/' . ($record?->id ?? auth()->id()))
+                            ->getUploadedFileUrlUsing(fn (string $file): ?string => asset('storage/' . ltrim($file, '/')))
+                            ->maxSize(2048)
+                            ->helperText('支持 jpg、png、gif、webp，最大 2MB；上传新头像会自动替换旧头像'),
+
                         // 登录密码
                         Forms\Components\TextInput::make('password')
                             ->label('密码')
@@ -54,14 +106,24 @@ class UserResource extends Resource
                             ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
                             ->required(fn (string $context): bool => $context === 'create')
                             ->dehydrated(fn ($state) => filled($state))
+                            ->confirmed()
                             ->helperText('编辑用户时留空表示不修改密码'),
 
-                        // 管理员权限
+                        // 确认密码
+                        Forms\Components\TextInput::make('password_confirmation')
+                            ->label('确认密码')
+                            ->password()
+                            ->dehydrated(false)
+                            ->helperText('修改密码时需要再次输入'),
+
+                        // 管理员权限（仅管理员可见）
                         Forms\Components\Toggle::make('is_admin')
                             ->label('管理员')
                             ->default(false)
                             ->inline(false)
-                            ->helperText('开启后该用户可登录 Filament 后台'),
+                            ->helperText('开启后该用户可登录 Filament 后台')
+                            ->hidden(fn () => ! auth()->user()->is_admin)
+                            ->disabled(fn () => ! auth()->user()->is_admin),
                     ])
                     ->columns(2),
             ]);

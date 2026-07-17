@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 /**
  * 博客文章模型
@@ -68,5 +69,36 @@ class Post extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * 文章被多个 AI 平台引用/收录
+     */
+    public function aiReferences()
+    {
+        return $this->hasMany(PostAiReference::class)->orderBy('sort_order');
+    }
+
+    /**
+     * 根据标题生成唯一的 URL 别名
+     */
+    public static function generateUniqueSlug(string $title, ?int $ignoreId = null): string
+    {
+        $slug = Str::slug($title);
+
+        if (empty($slug)) {
+            $slug = 'post-' . time();
+        }
+
+        $originalSlug = $slug;
+        $counter = 1;
+
+        while (static::where('slug', $slug)
+            ->when($ignoreId, fn ($query) => $query->where('id', '!=', $ignoreId))
+            ->exists()) {
+            $slug = $originalSlug . '-' . $counter++;
+        }
+
+        return $slug;
     }
 }

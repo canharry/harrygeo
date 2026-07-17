@@ -136,4 +136,48 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+/**
+ * 文章点赞按钮交互
+ * 通过 AJAX 提交点赞，成功后更新页面上的点赞数
+ */
+document.addEventListener('DOMContentLoaded', function () {
+    const likeBtn = document.querySelector('.like-btn');
+    if (!likeBtn) return;
+
+    likeBtn.addEventListener('click', function () {
+        const url = likeBtn.dataset.likeUrl;
+        if (!url) return;
+
+        // 防止重复点击
+        if (likeBtn.disabled) return;
+        likeBtn.disabled = true;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                'Accept': 'application/json',
+            },
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                const countEl = likeBtn.querySelector('.like-count');
+                if (countEl && data.likes !== undefined) {
+                    countEl.textContent = data.likes;
+                }
+                alert(data.message || '操作完成');
+            })
+            .catch(function () {
+                alert('点赞失败，请稍后重试');
+            })
+            .finally(function () {
+                likeBtn.disabled = false;
+            });
+    });
+});
+
+
 

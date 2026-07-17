@@ -19,7 +19,7 @@ class TagFactory extends Factory
         // 标签配色池
         $colors = ['#ff7eb3', '#667eea', '#f6d365', '#a18cd1', '#fbc2eb', '#8fd3f4', '#84fab0'];
 
-        $name = $this->faker->randomElement([
+        $name = $this->faker->unique()->randomElement([
             'Laravel',
             'Vue',
             'React',
@@ -39,7 +39,7 @@ class TagFactory extends Factory
 
         return [
             'name'  => $name,
-            'slug'  => Str::slug($name) . '-' . $this->faker->unique()->numberBetween(1, 999),
+            'slug'  => Str::slug($name),
             'color' => $this->faker->randomElement($colors),
         ];
     }

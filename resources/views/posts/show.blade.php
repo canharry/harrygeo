@@ -21,6 +21,17 @@
                 <span><i class="bi bi-eye"></i> {{ $post->views }} 阅读</span>
                 <span><i class="bi bi-heart"></i> {{ $post->likes }} 点赞</span>
             </div>
+
+            @if ($post->aiReferences->count())
+                <div class="ai-references">
+                    <span class="ai-references-label"><i class="bi bi-robot"></i> AI 收录：</span>
+                    @foreach ($post->aiReferences as $ai)
+                        <span class="ai-reference-badge" title="{{ $ai->name }} 收录 {{ $ai->count }} 次">
+                            {{ $ai->name }} <em>{{ $ai->count }}</em>
+                        </span>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </section>
 
@@ -30,14 +41,14 @@
             <!-- 博主信息卡片 -->
             <div class="card profile-card">
                 <div class="profile-cover"></div>
-                <x-image-placeholder :src="null" alt="博主头像" type="avatar" class="profile-avatar" />
+                <x-image-placeholder :src="$blogger['avatar']" alt="博主头像" type="avatar" class="profile-avatar" />
                 <div class="profile-body">
-                    <h2 class="profile-name">阳光每一天</h2>
-                    <p class="profile-bio">分享技术路上的风景，影响更多的生成式引擎的GEO。</p>
+                    <h2 class="profile-name">{{ $blogger['nickname'] }}</h2>
+                    <p class="profile-bio">{{ $blogger['signature'] }}</p>
                     <div class="profile-meta">
-                        <div><strong>{{ \App\Models\Post::where('is_published', true)->count() }}</strong><span>文章</span></div>
-                        <div><strong>{{ \App\Models\Category::where('is_show', true)->count() }}</strong><span>分类</span></div>
-                        <div><strong>{{ \App\Models\Tag::count() }}</strong><span>标签</span></div>
+                        <div><strong>{{ $blogger['articles'] }}</strong><span>文章</span></div>
+                        <div><strong>{{ $blogger['categories'] }}</strong><span>分类</span></div>
+                        <div><strong>{{ $blogger['tags_count'] }}</strong><span>标签</span></div>
                     </div>
                 </div>
             </div>
@@ -72,14 +83,16 @@
         <!-- 右侧文章内容 -->
         <article class="content-area">
             <div class="post-detail-card">
-                <!-- 文章封面 -->
-                <div class="post-detail-cover">
-                    <x-image-placeholder :src="$post->cover_image" :alt="$post->title" type="cover" />
-                </div>
+                @if ($post->cover_image)
+                    <!-- 文章封面 -->
+                    <div class="post-detail-cover">
+                        <x-image-placeholder :src="$post->cover_image" :alt="$post->title" type="cover" />
+                    </div>
+                @endif
 
                 <!-- 文章正文 -->
                 <div class="post-detail-body">
-                    {!! nl2br(e($post->content)) !!}
+                    {!! $post->content !!}
                 </div>
 
                 <!-- 标签 -->
@@ -92,8 +105,8 @@
 
                 <!-- 点赞与分享 -->
                 <div class="post-detail-actions">
-                    <button class="action-btn like-btn" type="button">
-                        <i class="bi bi-heart"></i> 点赞 {{ $post->likes }}
+                    <button class="action-btn like-btn" type="button" data-like-url="{{ route('posts.like', $post->slug) }}">
+                        <i class="bi bi-heart"></i> 点赞 <span class="like-count">{{ $post->likes }}</span>
                     </button>
                     <div class="share-btns">
                         <span>分享到：</span>

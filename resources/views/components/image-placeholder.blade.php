@@ -6,8 +6,15 @@
 --}}
 @props(['src' => null, 'alt' => '', 'type' => 'card', 'class' => ''])
 
+@php
+    $imageUrl = $src;
+    if ($src && ! filter_var($src, FILTER_VALIDATE_URL) && ! str_starts_with($src, '/')) {
+        $imageUrl = asset('storage/' . $src);
+    }
+@endphp
+
 @if ($src)
-    <img src="{{ $src }}" alt="{{ $alt }}" class="placeholder-img placeholder-{{ $type }} {{ $class }}">
+    <img src="{{ $imageUrl }}" alt="{{ $alt }}" class="placeholder-img placeholder-{{ $type }} {{ $class }}">
 @else
     <div class="placeholder-block placeholder-{{ $type }} {{ $class }}" aria-label="{{ $alt ?: '暂无图片' }}">
         <i class="bi bi-image"></i>

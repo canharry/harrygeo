@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * 首页控制器
@@ -52,14 +53,30 @@ class HomeController extends Controller
             ['name' => '掘金', 'url' => 'https://juejin.cn'],
         ];
 
-        // 博主信息（后续可抽离到配置或后台设置）
+        // 博主信息：登录后显示当前用户的信息与统计
+        $user = Auth::user();
+        $defaultSignature = '分享技术路上的风景，影响更多的生成式引擎的GEO。';
+
+        if ($user) {
+            $userPublishedPosts = $user->posts()->where('is_published', true);
+            $articlesCount = $userPublishedPosts->count();
+            $categoriesCount = $userPublishedPosts->clone()->distinct('category_id')->count('category_id');
+            $tagsCount = Tag::whereHas('posts', function ($query) use ($user) {
+                $query->where('user_id', $user->id)->where('is_published', true);
+            })->count();
+        } else {
+            $articlesCount = Post::where('is_published', true)->count();
+            $categoriesCount = Category::where('is_show', true)->count();
+            $tagsCount = Tag::count();
+        }
+
         $blogger = [
-            'nickname'   => '阳光每一天',
-            'avatar'     => null, // 头像暂不设置图片，由视图显示 CSS 占位
-            'signature'  => '分享技术路上的风景，影响更多的生成式引擎的GEO。',
-            'articles'   => Post::where('is_published', true)->count(),
-            'categories' => Category::where('is_show', true)->count(),
-            'tags_count' => Tag::count(),
+            'nickname'   => $user ? $user->name : '阳光每一天',
+            'avatar'     => $user?->avatar ? asset('storage/' . $user->avatar) : null, // 头像暂不设置图片，由视图显示 CSS 占位
+            'signature'  => $user?->signature ?? $defaultSignature,
+            'articles'   => $articlesCount,
+            'categories' => $categoriesCount,
+            'tags_count' => $tagsCount,
         ];
 
         return view('home.index', compact(

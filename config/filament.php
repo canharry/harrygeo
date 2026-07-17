@@ -1,5 +1,9 @@
 <?php
 
+use App\Filament\Widgets\DailyStatsWidget;
+use App\Filament\Widgets\MapTabsWidget;
+use App\Filament\Widgets\PostLikeLeaderboardWidget;
+use App\Filament\Widgets\PostReadLeaderboardWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Http\Middleware\MirrorConfigToSubpackages;
@@ -138,9 +142,12 @@ return [
     'widgets' => [
         'namespace' => 'App\\Filament\\Widgets',
         'path' => app_path('Filament/Widgets'),
+        // 注册自定义仪表盘小部件
         'register' => [
-            Widgets\AccountWidget::class,
-            Widgets\FilamentInfoWidget::class,
+            DailyStatsWidget::class,
+            PostReadLeaderboardWidget::class,
+            PostLikeLeaderboardWidget::class,
+            MapTabsWidget::class,
         ],
     ],
 
