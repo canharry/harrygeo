@@ -1,0 +1,180 @@
+/* =========================================================
+   Filament 后台【文章列表】紧凑样式
+   通过 .filament-resources-posts 限定，只作用于文章资源页，
+   避免影响用户、分类、标签等其他表格。
+   ========================================================= */
+
+.filament-resources-posts {
+    --filament-table-cell-padding: 0.25rem 0.5rem;
+}
+
+/* 表格容器减少内边距 */
+.filament-resources-posts .filament-tables-container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+/* 表头单元格：去掉 th 自身内边距，由内部 button 控制 */
+.filament-resources-posts .filament-tables-header-cell {
+    padding: 0 !important;
+}
+
+.filament-resources-posts .filament-tables-header-cell button {
+    padding: 0.375rem 0.5rem !important;
+    font-size: 0.8125rem !important;
+    line-height: 1.25 !important;
+}
+
+/* 数据单元格：紧凑 */
+.filament-resources-posts .filament-tables-cell,
+.filament-resources-posts .filament-tables-actions-cell,
+.filament-resources-posts .filament-tables-checkbox-cell {
+    padding: 0.25rem 0.5rem !important;
+}
+
+/* 列内容包裹层默认 px-4 py-3，覆盖为更紧凑 */
+.filament-resources-posts .filament-tables-cell .filament-tables-text-column,
+.filament-resources-posts .filament-tables-cell .filament-tables-tags-column,
+.filament-resources-posts .filament-tables-cell .filament-tables-icon-column {
+    padding: 0.125rem 0 !important;
+}
+
+/* 整表字体略小 */
+.filament-resources-posts .filament-tables-table {
+    font-size: 0.8125rem;
+}
+
+/* =========================================================
+   列宽限制（避免列被撑开浪费空间）
+   注意：关系列类名保留原始点号，如 category.name
+   ========================================================= */
+
+/* 标题：允许自动填充剩余宽度，防止右侧留白 */
+.filament-resources-posts .filament-table-header-cell-title,
+.filament-resources-posts .filament-table-cell-title {
+    width: auto;
+    min-width: 150px;
+}
+
+/* 分类 */
+.filament-resources-posts .filament-table-header-cell-category\.name,
+.filament-resources-posts .filament-table-cell-category\.name {
+    width: 75px;
+    min-width: 75px;
+    max-width: 75px;
+}
+
+/* 标签 */
+.filament-resources-posts .filament-table-header-cell-tags\.name,
+.filament-resources-posts .filament-table-cell-tags\.name {
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
+}
+
+/* 归属人 */
+.filament-resources-posts .filament-table-header-cell-user\.name,
+.filament-resources-posts .filament-table-cell-user\.name {
+    width: 75px;
+    min-width: 75px;
+    max-width: 75px;
+}
+
+/* 已发布 / 推荐 */
+.filament-resources-posts .filament-table-header-cell-is-published,
+.filament-resources-posts .filament-table-cell-is-published,
+.filament-resources-posts .filament-table-header-cell-is-featured,
+.filament-resources-posts .filament-table-cell-is-featured {
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
+    text-align: center;
+}
+
+/* 浏览 / 点赞 */
+.filament-resources-posts .filament-table-header-cell-views,
+.filament-resources-posts .filament-table-cell-views,
+.filament-resources-posts .filament-table-header-cell-likes,
+.filament-resources-posts .filament-table-cell-likes {
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
+}
+
+/* AI 收录 */
+.filament-resources-posts .filament-table-header-cell-ai-references-summary,
+.filament-resources-posts .filament-table-cell-ai-references-summary {
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
+}
+
+/* 创建时间 */
+.filament-resources-posts .filament-table-header-cell-created-at,
+.filament-resources-posts .filament-table-cell-created-at {
+    width: 75px;
+    min-width: 75px;
+    max-width: 75px;
+    white-space: nowrap;
+}
+
+/* 操作列：尽量压缩 */
+.filament-resources-posts .filament-tables-actions-cell,
+.filament-resources-posts .filament-tables-table th.w-5,
+.filament-resources-posts .filament-tables-table td.w-5 {
+    width: 1%;
+    min-width: 70px;
+    max-width: 80px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* =========================================================
+   操作按钮紧凑（已改为图标按钮）
+   ========================================================= */
+
+.filament-resources-posts .filament-tables-actions-cell .filament-tables-actions-container {
+    gap: 0.25rem;
+    justify-content: center !important;
+}
+
+.filament-resources-posts .filament-tables-actions-cell .flex.items-center.gap-4 {
+    gap: 0.25rem !important;
+}
+
+.filament-resources-posts .filament-tables-actions-cell button,
+.filament-resources-posts .filament-tables-actions-cell a {
+    padding: 0.25rem !important;
+    font-size: 0.75rem !important;
+}
+
+/* 操作按钮图标大小 */
+.filament-resources-posts .filament-tables-actions-cell svg {
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
+/* =========================================================
+   标签徽章紧凑
+   ========================================================= */
+
+.filament-resources-posts .filament-tables-tags-column {
+    gap: 0.25rem !important;
+}
+
+.filament-resources-posts .filament-tables-tags-column span {
+    padding: 0.0625rem 0.375rem !important;
+    font-size: 0.6875rem !important;
+    border-radius: 0.375rem !important;
+    min-height: auto !important;
+    line-height: 1.25 !important;
+}
+
+.filament-resources-posts .filament-tables-tags-column .text-xs {
+    font-size: 0.6875rem !important;
+}
+
+/* 分页等底部也紧凑 */
+.filament-resources-posts .filament-tables-pagination {
+    padding: 0.5rem 0.75rem;
+}

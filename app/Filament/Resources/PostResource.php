@@ -252,7 +252,9 @@ class PostResource extends Resource
                     ->label('标题')
                     ->searchable()
                     ->sortable()
-                    ->limit(40),
+                    ->limit(25)
+                    ->wrap(),
+
 
                 Tables\Columns\TextColumn::make('category.name')
                     ->label('分类')
@@ -261,7 +263,7 @@ class PostResource extends Resource
                 Tables\Columns\TagsColumn::make('tags.name')
                     ->label('标签')
                     ->separator(',')
-                    ->limit(5),
+                    ->limit(2),
 
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('归属人')
@@ -313,7 +315,7 @@ class PostResource extends Resource
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('创建时间')
-                    ->dateTime('Y-m-d H:i')
+                    ->dateTime('Y-m-d')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -335,8 +337,8 @@ class PostResource extends Resource
                     ->falseLabel('未推荐'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()->iconButton(),
+                Tables\Actions\DeleteAction::make()->iconButton(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),

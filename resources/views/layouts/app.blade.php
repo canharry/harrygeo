@@ -33,7 +33,14 @@
                 <li><a href="{{ route('posts.index') }}" class="{{ request()->routeIs('posts.index', 'posts.show') ? 'active' : '' }}"><i class="bi bi-journal-text"></i> 文章</a></li>
                 <li><a href="{{ route('home') }}#categories"><i class="bi bi-grid"></i> 分类</a></li>
                 <li><a href="{{ route('home') }}#tags"><i class="bi bi-tag"></i> 标签</a></li>
-                <li><a href="#"><i class="bi bi-chat-square-heart"></i> 留言</a></li>
+                <li>
+                    <a href="{{ route('messages.index') }}" class="{{ request()->routeIs('messages.index') ? 'active' : '' }}">
+                        <i class="bi bi-bell"></i> 消息
+                        @if ($unreadMessageCount > 0)
+                            <span class="nav-badge">{{ $unreadMessageCount }}</span>
+                        @endif
+                    </a>
+                </li>
                 <li><a href="#"><i class="bi bi-person"></i> 关于</a></li>
 
                 {{-- 移动端菜单中的登录/注册入口 --}}

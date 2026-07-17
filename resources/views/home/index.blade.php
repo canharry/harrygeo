@@ -14,9 +14,9 @@
             <h1 class="hero-title">阳光每一天</h1>
             <p class="hero-subtitle">意外和明天谁先到来？我们不知道，我们要阳光每一天。</p>
             <div class="hero-stats">
-                <span><i class="bi bi-file-earmark-text"></i> {{ $blogger['articles'] }} 篇文章</span>
-                <span><i class="bi bi-folder"></i> {{ $blogger['categories'] }} 个分类</span>
-                <span><i class="bi bi-tags"></i> {{ $blogger['tags_count'] }} 个标签</span>
+                <a href="{{ route('posts.index') }}"><i class="bi bi-file-earmark-text"></i> {{ $blogger['articles'] }} 篇文章</a>
+                <a href="{{ route('home') }}#categories"><i class="bi bi-folder"></i> {{ $blogger['categories'] }} 个分类</a>
+                <a href="{{ route('home') }}#tags"><i class="bi bi-tags"></i> {{ $blogger['tags_count'] }} 个标签</a>
             </div>
         </div>
     </section>
@@ -33,9 +33,9 @@
                     <h2 class="profile-name">{{ $blogger['nickname'] }}</h2>
                     <p class="profile-bio">{{ $blogger['signature'] }}</p>
                     <div class="profile-meta">
-                        <div><strong>{{ $blogger['articles'] }}</strong><span>文章</span></div>
-                        <div><strong>{{ $blogger['categories'] }}</strong><span>分类</span></div>
-                        <div><strong>{{ $blogger['tags_count'] }}</strong><span>标签</span></div>
+                        <a href="{{ route('posts.index') }}"><strong>{{ $blogger['articles'] }}</strong><span>文章</span></a>
+                        <a href="{{ route('home') }}#categories"><strong>{{ $blogger['categories'] }}</strong><span>分类</span></a>
+                        <a href="{{ route('home') }}#tags"><strong>{{ $blogger['tags_count'] }}</strong><span>标签</span></a>
                     </div>
                 </div>
             </div>

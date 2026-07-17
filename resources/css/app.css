@@ -120,6 +120,22 @@ img {
     box-shadow: 0 4px 14px rgba(255, 126, 179, 0.35);
 }
 
+/* 导航栏消息未读角标 */
+.nav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 2px;
+}
+
 .nav-toggle {
     display: none;
     background: none;
@@ -317,6 +333,15 @@ img {
     font-size: 0.95rem;
 }
 
+.hero-stats a {
+    color: inherit;
+    transition: opacity 0.2s;
+}
+
+.hero-stats a:hover {
+    opacity: 0.85;
+}
+
 .hero-stats i {
     margin-right: 4px;
     color: var(--accent);
@@ -415,16 +440,25 @@ img {
     padding-top: 16px;
 }
 
-.profile-meta div {
+.profile-meta > a {
     display: flex;
     flex-direction: column;
     font-size: 0.8rem;
     color: var(--text-light);
+    transition: color 0.2s;
+}
+
+.profile-meta > a:hover {
+    color: var(--primary);
 }
 
 .profile-meta strong {
     font-size: 1.15rem;
     color: var(--text-main);
+}
+
+.profile-meta > a:hover strong {
+    color: var(--primary);
 }
 
 /* 搜索框 */
@@ -1390,6 +1424,14 @@ img {
     color: var(--white);
     font-size: 1.4rem;
     flex-shrink: 0;
+    overflow: hidden;
+}
+
+.comment-avatar-img {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .comment-header {
@@ -1406,6 +1448,22 @@ img {
 .comment-header span {
     font-size: 0.8rem;
     color: var(--text-light);
+}
+
+.comment-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    background: rgba(138, 138, 163, 0.08);
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.comment-meta i {
+    font-size: 0.8rem;
 }
 
 .comment-form textarea {
@@ -1441,6 +1499,277 @@ img {
 
 .submit-btn:hover {
     transform: translateY(-2px);
+}
+
+/* 评论操作区 */
+.comment-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+/* 回复按钮 */
+.reply-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: none;
+    background: transparent;
+    color: var(--primary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s;
+}
+
+.reply-toggle:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+/* 删除评论按钮 */
+.comment-delete-form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.delete-comment-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: none;
+    background: transparent;
+    color: #ef4444;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s;
+}
+
+.delete-comment-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* 编辑按钮 */
+.edit-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: none;
+    background: transparent;
+    color: var(--secondary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s;
+}
+
+.edit-toggle:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+/* 编辑表单 */
+.edit-form {
+    margin-top: 12px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(138, 138, 163, 0.15);
+}
+
+/* 回复表单 */
+.reply-form {
+    margin-top: 12px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(138, 138, 163, 0.15);
+}
+
+.reply-form textarea {
+    margin-bottom: 10px;
+}
+
+.reply-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cancel-reply {
+    padding: 8px 18px;
+    border: 1px solid rgba(138, 138, 163, 0.3);
+    border-radius: 50px;
+    background: var(--white);
+    color: var(--text-light);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cancel-reply:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* 嵌套回复列表 */
+.comment-replies {
+    list-style: none;
+    margin-top: 14px;
+    padding-left: 16px;
+    border-left: 2px solid rgba(138, 138, 163, 0.15);
+}
+
+.reply-item {
+    padding: 12px 0;
+}
+
+.reply-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.reply-item .comment-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+}
+
+/* 更深层层级回复 */
+.nested-reply-item {
+    padding: 10px 0;
+}
+
+.nested-reply-item .comment-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+}
+
+.nested-reply-item .comment-replies {
+    padding-left: 12px;
+}
+
+/* 回复对象标识 */
+.reply-to {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-right: 6px;
+    padding: 1px 8px;
+    background: linear-gradient(135deg, rgba(255, 154, 158, 0.15), rgba(102, 126, 234, 0.15));
+    border-radius: 50px;
+    color: var(--primary);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.reply-to::before {
+    content: '@';
+}
+
+/* 评论工具栏 */
+.comment-toolbar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.comment-toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(138, 138, 163, 0.2);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--text-light);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.comment-toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--primary);
+    border-color: var(--primary-light);
+}
+
+.comment-toolbar-btn.is-loading {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.comment-image-input {
+    display: none;
+}
+
+/* 表情弹窗 */
+.emoji-popup {
+    position: absolute;
+    top: 38px;
+    left: 0;
+    z-index: 100;
+    display: none;
+    padding: 10px;
+    background: var(--white);
+    border: 1px solid rgba(138, 138, 163, 0.15);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-hover);
+}
+
+.emoji-popup.is-open {
+    display: block;
+}
+
+.emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+}
+
+.emoji-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.emoji-item:hover {
+    background: rgba(102, 126, 234, 0.12);
+}
+
+/* 评论内容容器 */
+.comment-text {
+    margin: 0 0 12px;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--text-main);
+    word-break: break-word;
+}
+
+/* 评论内联图片 */
+.comment-inline-image {
+    max-width: 100%;
+    max-height: 300px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 12px rgba(102, 126, 234, 0.12);
 }
 
 /* 目录占位卡片 */

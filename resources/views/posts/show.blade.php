@@ -144,36 +144,237 @@
 
             <!-- 评论区 -->
             <div class="comment-section">
-                <h3 class="section-title"><i class="bi bi-chat-square-text"></i> 评论列表（{{ $post->comments->count() }}）</h3>
+                <h3 class="section-title"><i class="bi bi-chat-square-text"></i> 评论列表（{{ $post->comments_count }}）</h3>
 
-                @if ($post->comments->count())
+                @if (session('success'))
+                    <div class="alert-success" style="margin-bottom: 1rem; padding: 0.75rem 1rem; background: #d1fae5; color: #065f46; border-radius: 0.5rem;">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @php
+                    $topLevelComments = $post->comments->whereNull('parent_id');
+                    $totalComments = $post->comments_count;
+                @endphp
+
+                @if ($totalComments)
                     <ul class="comment-list">
-                        @foreach ($post->comments as $comment)
-                            <li class="comment-item">
-                                <div class="comment-avatar">
-                                    <i class="bi bi-person-circle"></i>
-                                </div>
-                                <div class="comment-body">
-                                    <div class="comment-header">
-                                        <strong>{{ $comment->user->name ?? '匿名访客' }}</strong>
-                                        <span>{{ $comment->created_at->format('Y-m-d H:i') }}</span>
-                                    </div>
-                                    <p>{{ $comment->content }}</p>
-                                </div>
-                            </li>
+                        @foreach ($topLevelComments as $comment)
+                            @include('posts._comment', [
+                                'comment' => $comment,
+                                'post' => $post,
+                                'depth' => 0,
+                                'replyTo' => null,
+                            ])
                         @endforeach
                     </ul>
                 @else
                     <p class="empty-tip">暂无评论，快来抢沙发吧~</p>
                 @endif
 
-                <!-- 评论表单 -->
-                <form action="#" method="post" class="comment-form">
-                    @csrf
-                    <textarea name="content" rows="4" placeholder="写下你的想法..."></textarea>
-                    <button type="submit" class="submit-btn"><i class="bi bi-send"></i> 发表评论</button>
-                </form>
+                <!-- 主评论表单 -->
+                @auth
+                    <form action="{{ route('posts.comments.store', $post->slug) }}" method="post" class="comment-form main-comment-form">
+                        @csrf
+                        <x-comment-toolbar textarea-id="main-comment-content" />
+                        <textarea id="main-comment-content" name="content" rows="4" placeholder="写下你的想法..." required maxlength="1000">{{ old('parent_id') ? '' : old('content') }}</textarea>
+                        @error('content')
+                            @if (! old('parent_id'))
+                                <p class="error-text">{{ $message }}</p>
+                            @endif
+                        @enderror
+                        <button type="submit" class="submit-btn"><i class="bi bi-send"></i> 发表评论</button>
+                    </form>
+                @else
+                    <p class="empty-tip">请 <a href="{{ route('login') }}">登录</a> 后发表评论~</p>
+                @endauth
             </div>
         </article>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function showActions(actionsId) {
+                if (actionsId) {
+                    var actions = document.getElementById(actionsId);
+                    if (actions) {
+                        actions.style.display = 'flex';
+                    }
+                }
+            }
+
+            function hideActions(actionsId) {
+                if (actionsId) {
+                    var actions = document.getElementById(actionsId);
+                    if (actions) {
+                        actions.style.display = 'none';
+                    }
+                }
+            }
+
+            // 展开回复表单
+            document.querySelectorAll('.reply-toggle').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var targetId = this.getAttribute('data-target');
+                    var actionsId = this.getAttribute('data-actions');
+                    var form = document.getElementById(targetId);
+                    if (form) {
+                        form.style.display = 'block';
+                        hideActions(actionsId);
+                        form.querySelector('textarea').focus();
+                    }
+                });
+            });
+
+            // 取消回复
+            document.querySelectorAll('.cancel-reply').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var targetId = this.getAttribute('data-target');
+                    var actionsId = this.getAttribute('data-actions');
+                    var form = document.getElementById(targetId);
+                    if (form) {
+                        form.style.display = 'none';
+                        form.querySelector('textarea').value = '';
+                        showActions(actionsId);
+                    }
+                });
+            });
+
+            // 展开编辑表单
+            document.querySelectorAll('.edit-toggle').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var targetId = this.getAttribute('data-target');
+                    var actionsId = this.getAttribute('data-actions');
+                    var form = document.getElementById(targetId);
+                    if (form) {
+                        form.style.display = 'block';
+                        hideActions(actionsId);
+                        form.querySelector('textarea').focus();
+                    }
+                });
+            });
+
+            // 取消编辑
+            document.querySelectorAll('.cancel-edit').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var targetId = this.getAttribute('data-target');
+                    var actionsId = this.getAttribute('data-actions');
+                    var form = document.getElementById(targetId);
+                    if (form) {
+                        form.style.display = 'none';
+                        showActions(actionsId);
+                    }
+                });
+            });
+
+            /**
+             * 在 textarea 光标处插入文本
+             */
+            function insertTextAtCursor(textarea, text) {
+                textarea.focus();
+                var start = textarea.selectionStart;
+                var end = textarea.selectionEnd;
+                var before = textarea.value.substring(0, start);
+                var after = textarea.value.substring(end);
+                textarea.value = before + text + after;
+                var pos = start + text.length;
+                textarea.setSelectionRange(pos, pos);
+            }
+
+            // 展开/收起表情弹窗
+            document.querySelectorAll('.comment-toolbar-btn--emoji').forEach(function (button) {
+                button.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var toolbar = this.closest('.comment-toolbar');
+                    var popup = toolbar.querySelector('.emoji-popup');
+                    document.querySelectorAll('.emoji-popup.is-open').forEach(function (p) {
+                        if (p !== popup) {
+                            p.classList.remove('is-open');
+                        }
+                    });
+                    popup.classList.toggle('is-open');
+                });
+            });
+
+            // 选择表情插入 textarea
+            document.querySelectorAll('.emoji-item').forEach(function (item) {
+                item.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var toolbar = this.closest('.comment-toolbar');
+                    var textareaId = toolbar.getAttribute('data-target');
+                    var textarea = document.getElementById(textareaId);
+                    if (textarea) {
+                        insertTextAtCursor(textarea, this.textContent);
+                    }
+                    toolbar.querySelector('.emoji-popup').classList.remove('is-open');
+                });
+            });
+
+            // 触发图片上传选择
+            document.querySelectorAll('.comment-toolbar-btn--image').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var toolbar = this.closest('.comment-toolbar');
+                    toolbar.querySelector('.comment-image-input').click();
+                });
+            });
+
+            // 图片选择后 AJAX 上传并插入占位符
+            document.querySelectorAll('.comment-image-input').forEach(function (input) {
+                input.addEventListener('change', function () {
+                    var file = this.files[0];
+                    if (! file) {
+                        return;
+                    }
+
+                    var toolbar = this.closest('.comment-toolbar');
+                    var textareaId = toolbar.getAttribute('data-target');
+                    var textarea = document.getElementById(textareaId);
+                    var uploadUrl = toolbar.getAttribute('data-upload-url');
+                    var imageBtn = toolbar.querySelector('.comment-toolbar-btn--image');
+
+                    imageBtn.classList.add('is-loading');
+                    imageBtn.disabled = true;
+
+                    var formData = new FormData();
+                    formData.append('image', file);
+
+                    fetch(uploadUrl, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: formData,
+                    })
+                        .then(function (response) {
+                            return response.json();
+                        })
+                        .then(function (data) {
+                            if (data.path && textarea) {
+                                insertTextAtCursor(textarea, '[img:' + data.path + ']');
+                            } else {
+                                alert(data.message || '图片上传失败');
+                            }
+                        })
+                        .catch(function () {
+                            alert('图片上传失败，请稍后重试');
+                        })
+                        .finally(function () {
+                            imageBtn.classList.remove('is-loading');
+                            imageBtn.disabled = false;
+                            input.value = '';
+                        });
+                });
+            });
+
+            // 点击页面其他区域关闭表情弹窗
+            document.addEventListener('click', function () {
+                document.querySelectorAll('.emoji-popup.is-open').forEach(function (popup) {
+                    popup.classList.remove('is-open');
+                });
+            });
+        });
+    </script>
+@endpush
