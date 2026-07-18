@@ -71,6 +71,7 @@ class HomeController extends Controller
         }
 
         $blogger = [
+            'user_id'    => $user?->id,
             'nickname'   => $user ? $user->name : '阳光每一天',
             'avatar'     => $user?->avatar ? asset('storage/' . $user->avatar) : null, // 头像暂不设置图片，由视图显示 CSS 占位
             'signature'  => $user?->signature ?? $defaultSignature,

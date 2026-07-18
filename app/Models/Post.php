@@ -25,9 +25,12 @@ class Post extends Model
         'summary',       // 文章摘要
         'content',       // 文章内容
         'cover_image',   // 封面图地址
+        'video',         // 视频文件路径或外部视频链接
         'views',         // 浏览量
         'likes',         // 点赞数
         'is_published',  // 是否发布
+        'is_original',   // 是否为原创文章
+        'original_url',  // 转载文章来源链接
         'published_at',  // 发布时间
     ];
 
@@ -37,6 +40,7 @@ class Post extends Model
     protected $casts = [
         'published_at' => 'datetime',
         'is_published' => 'boolean',
+        'is_original'  => 'boolean',
     ];
 
     /**
@@ -77,6 +81,69 @@ class Post extends Model
     public function aiReferences()
     {
         return $this->hasMany(PostAiReference::class)->orderBy('sort_order');
+    }
+
+    /**
+     * 获取可公开访问的视频地址
+     * 本地文件自动转换为 storage 链接，外部链接原样返回
+     */
+    public function videoUrl(): ?string
+    {
+        if (empty($this->video)) {
+            return null;
+        }
+
+        if (filter_var($this->video, FILTER_VALIDATE_URL)) {
+            return $this->video;
+        }
+
+        return asset('storage/' . $this->video);
+    }
+
+    /**
+     * 判断视频来源类型：youtube、bilibili、html5、none
+     */
+    public function videoType(): string
+    {
+        if (empty($this->video)) {
+            return 'none';
+        }
+
+        $value = $this->video;
+
+        if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/', $value, $matches)) {
+            return 'youtube';
+        }
+
+        if (preg_match('/(?:bilibili\.com\/video\/|b23\.tv\/)(BV[a-zA-Z0-9]+)/', $value, $matches)) {
+            return 'bilibili';
+        }
+
+        return 'html5';
+    }
+
+    /**
+     * 获取 YouTube 视频 ID
+     */
+    public function youtubeVideoId(): ?string
+    {
+        if (! preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/', $this->video, $matches)) {
+            return null;
+        }
+
+        return $matches[1];
+    }
+
+    /**
+     * 获取 Bilibili 视频 BV 号
+     */
+    public function bilibiliVideoId(): ?string
+    {
+        if (! preg_match('/(?:bilibili\.com\/video\/|b23\.tv\/)(BV[a-zA-Z0-9]+)/', $this->video, $matches)) {
+            return null;
+        }
+
+        return $matches[1];
     }
 
     /**

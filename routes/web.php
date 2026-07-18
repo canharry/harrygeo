@@ -46,11 +46,22 @@ Route::post('/comments/upload-image', [App\Http\Controllers\PostController::clas
     ->name('comments.upload-image')
     ->middleware('auth');
 
-// 分类归档页路由
+// 正文视频上传路由（需登录）
+Route::post('/posts/upload-video', [App\Http\Controllers\PostController::class, 'uploadContentVideo'])
+    ->name('posts.upload-video')
+    ->middleware('auth');
+
+// 分类列表与归档页路由
+Route::get('/categories', [App\Http\Controllers\CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{slug}', [App\Http\Controllers\CategoryController::class, 'show'])->name('categories.show');
 
-// 标签归档页路由
+// 标签列表与归档页路由
+Route::get('/tags', [App\Http\Controllers\TagController::class, 'index'])->name('tags.index');
 Route::get('/tags/{slug}', [App\Http\Controllers\TagController::class, 'show'])->name('tags.show');
+
+// 用户（博主）的分类与标签归档页
+Route::get('/users/{user}/categories', [App\Http\Controllers\UserArchiveController::class, 'categories'])->name('users.categories');
+Route::get('/users/{user}/tags', [App\Http\Controllers\UserArchiveController::class, 'tags'])->name('users.tags');
 
 // 前台用户认证路由
 Route::middleware('guest')->group(function () {

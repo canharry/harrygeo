@@ -31,8 +31,8 @@
             <ul class="nav-menu">
                 <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}"><i class="bi bi-house-door"></i> 首页</a></li>
                 <li><a href="{{ route('posts.index') }}" class="{{ request()->routeIs('posts.index', 'posts.show') ? 'active' : '' }}"><i class="bi bi-journal-text"></i> 文章</a></li>
-                <li><a href="{{ route('home') }}#categories"><i class="bi bi-grid"></i> 分类</a></li>
-                <li><a href="{{ route('home') }}#tags"><i class="bi bi-tag"></i> 标签</a></li>
+                <li><a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.index', 'categories.show') ? 'active' : '' }}"><i class="bi bi-grid"></i> 分类</a></li>
+                <li><a href="{{ route('tags.index') }}" class="{{ request()->routeIs('tags.index', 'tags.show') ? 'active' : '' }}"><i class="bi bi-tag"></i> 标签</a></li>
                 <li>
                     <a href="{{ route('messages.index') }}" class="{{ request()->routeIs('messages.index') ? 'active' : '' }}">
                         <i class="bi bi-bell"></i> 消息

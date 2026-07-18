@@ -23,6 +23,20 @@ class EditPost extends EditRecord
             ->all();
     }
 
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        // 根据数据库中的 video 值回填上传组件或链接输入框
+        if (! empty($data['video'])) {
+            if (filter_var($data['video'], FILTER_VALIDATE_URL)) {
+                $data['video_url'] = $data['video'];
+            } else {
+                $data['video_file'] = $data['video'];
+            }
+        }
+
+        return $data;
+    }
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
         if (empty($data['slug'])) {
@@ -33,6 +47,16 @@ class EditPost extends EditRecord
             $data['cover_image'] = $data['cover_image_file'];
         }
         unset($data['cover_image_file']);
+
+        // 视频：本地上传优先，其次外部链接
+        if (! empty($data['video_file'])) {
+            $data['video'] = $data['video_file'];
+        } elseif (! empty($data['video_url'])) {
+            $data['video'] = $data['video_url'];
+        } else {
+            $data['video'] = null;
+        }
+        unset($data['video_file'], $data['video_url']);
 
         return $data;
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\PostLike;
+use App\Models\SiteSetting;
 use App\Models\Tag;
 use App\Models\VisitSummary;
 use Illuminate\Http\Request;
@@ -106,7 +107,14 @@ class PostController extends Controller
             'tags_count' => $tagsCount,
         ];
 
-        return view('posts.show', compact('post', 'prevPost', 'nextPost', 'relatedPosts', 'blogger'));
+        // 站点设置：侵权举报文案（管理员可在后台配置）
+        $contactEmail = SiteSetting::getValue('contact_email', '');
+        $infringementNotice = SiteSetting::getValue('infringement_notice', '');
+        if ($infringementNotice && $contactEmail) {
+            $infringementNotice = str_replace('{email}', $contactEmail, $infringementNotice);
+        }
+
+        return view('posts.show', compact('post', 'prevPost', 'nextPost', 'relatedPosts', 'blogger', 'infringementNotice'));
     }
 
     /**
@@ -268,6 +276,33 @@ class PostController extends Controller
         ]);
 
         $path = $request->file('image')->store('comments/' . now()->format('Y/m'), 'public');
+
+        return response()->json([
+            'url'  => asset('storage/' . $path),
+            'path' => $path,
+        ]);
+    }
+
+    /**
+     * 上传正文视频
+     *
+     * 通过 AJAX 上传视频并返回访问地址与存储路径
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function uploadContentVideo(Request $request)
+    {
+        $validated = $request->validate([
+            'video' => ['required', 'file', 'mimes:mp4,webm,ogg,mov', 'max:51200'],
+        ], [
+            'video.required' => '请选择视频',
+            'video.file'     => '请上传视频文件',
+            'video.mimes'    => '仅支持 mp4、webm、ogg、mov 格式',
+            'video.max'      => '视频大小不能超过 50MB',
+        ]);
+
+        $path = $request->file('video')->store('content-videos/' . now()->format('Y/m'), 'public');
 
         return response()->json([
             'url'  => asset('storage/' . $path),

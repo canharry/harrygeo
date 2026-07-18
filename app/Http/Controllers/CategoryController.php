@@ -12,6 +12,21 @@ use Illuminate\Http\Request;
 class CategoryController extends Controller
 {
     /**
+     * 全部分类列表页
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index()
+    {
+        $categories = Category::withCount('posts')
+            ->where('is_show', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('categories.index', compact('categories'));
+    }
+
+    /**
      * 分类归档页
      *
      * @param string $slug 分类 URL 标识

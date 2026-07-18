@@ -14,7 +14,27 @@
                 <i class="bi bi-chevron-right"></i>
                 <span>正文</span>
             </div>
-            <h1 class="post-detail-title">{{ $post->title }}</h1>
+            <div class="post-detail-title-wrap">
+                <h1 class="post-detail-title">{{ $post->title }}</h1>
+
+                <!-- 原创 / 转载徽章（Hero 区域） -->
+                <div class="post-detail-copyright hero-copyright-badge">
+                    @if ($post->is_original)
+                        <span class="copyright-badge original" title="原创文章">
+                            <i class="bi bi-pencil-square"></i> 原创
+                        </span>
+                    @else
+                        <span class="copyright-badge reprint" title="转载文章">
+                            <i class="bi bi-share"></i> 转载
+                        </span>
+                        @if ($post->original_url)
+                            <a href="{{ $post->original_url }}" target="_blank" rel="noopener noreferrer" class="original-link" title="查看原文">
+                                <i class="bi bi-box-arrow-up-right"></i> 原文
+                            </a>
+                        @endif
+                    @endif
+                </div>
+            </div>
             <div class="post-detail-meta">
                 <span><i class="bi bi-person-circle"></i> {{ $post->user->name ?? '博主' }}</span>
                 <span><i class="bi bi-calendar3"></i> {{ $post->published_at->format('Y-m-d') }}</span>
@@ -53,10 +73,12 @@
                 </div>
             </div>
 
-            <!-- 目录导航（后续可接入文章目录） -->
-            <div class="card toc-card">
+            <!-- 目录导航 -->
+            <div class="card toc-card" id="toc-card">
                 <h3 class="card-title"><i class="bi bi-list-ul"></i> 文章目录</h3>
-                <p class="toc-placeholder">目录功能将在后续接入 Markdown 解析后自动生成。</p>
+                <nav class="toc-nav" id="toc-nav">
+                    <p class="toc-placeholder">本文暂无目录</p>
+                </nav>
             </div>
 
             <!-- 相关文章 -->
@@ -90,6 +112,41 @@
                     </div>
                 @endif
 
+                @if ($post->video && $post->videoType() !== 'none')
+                    <!-- 文章视频 -->
+                    <div class="post-detail-video">
+                        @if ($post->videoType() === 'youtube')
+                            <div class="video-embed">
+                                <iframe
+                                    src="https://www.youtube.com/embed/{{ $post->youtubeVideoId() }}"
+                                    title="YouTube video player"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen
+                                ></iframe>
+                            </div>
+                        @elseif ($post->videoType() === 'bilibili')
+                            <div class="video-embed">
+                                <iframe
+                                    src="https://player.bilibili.com/player.html?bvid={{ $post->bilibiliVideoId() }}&page=1&high_quality=1"
+                                    scrolling="no"
+                                    border="0"
+                                    frameborder="no"
+                                    framespacing="0"
+                                    allowfullscreen="true"
+                                ></iframe>
+                            </div>
+                        @else
+                            <div class="video-player">
+                                <video controls preload="metadata" poster="{{ $post->cover_image ?? '' }}">
+                                    <source src="{{ $post->videoUrl() }}" type="video/mp4">
+                                    您的浏览器不支持 HTML5 视频播放，请<a href="{{ $post->videoUrl() }}" target="_blank">点击下载</a>观看。
+                                </video>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
                 <!-- 文章正文 -->
                 <div class="post-detail-body">
                     {!! $post->content !!}
@@ -102,6 +159,14 @@
                         <a href="{{ route('tags.show', $tag->slug) }}" class="post-tag" style="--tag-color: {{ $tag->color ?? '#667eea' }}">{{ $tag->name }}</a>
                     @endforeach
                 </div>
+
+                <!-- 侵权举报文案 -->
+                @if ($infringementNotice)
+                    <div class="post-detail-notice">
+                        <i class="bi bi-shield-exclamation"></i>
+                        <span>{!! $infringementNotice !!}</span>
+                    </div>
+                @endif
 
                 <!-- 点赞与分享 -->
                 <div class="post-detail-actions">
@@ -375,6 +440,175 @@
                     popup.classList.remove('is-open');
                 });
             });
+
+            // 自动生成文章目录
+            (function () {
+                var body = document.querySelector('.post-detail-body');
+                var tocNav = document.getElementById('toc-nav');
+                if (!body || !tocNav) {
+                    return;
+                }
+
+                var headings = Array.prototype.slice.call(body.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+                if (headings.length === 0) {
+                    return;
+                }
+
+                // 为没有 id 的标题生成唯一锚点
+                var usedIds = {};
+                headings.forEach(function (heading, index) {
+                    if (!heading.id) {
+                        var base = 'heading-' + heading.tagName.toLowerCase() + '-' + index;
+                        var id = base;
+                        var counter = 1;
+                        while (usedIds[id]) {
+                            id = base + '-' + counter++;
+                        }
+                        usedIds[id] = true;
+                        heading.id = id;
+                    } else {
+                        usedIds[heading.id] = true;
+                    }
+                });
+
+                // 构建目录列表
+                var ul = document.createElement('ul');
+                ul.className = 'toc-list';
+                headings.forEach(function (heading) {
+                    var li = document.createElement('li');
+                    li.className = 'toc-item toc-level-' + heading.tagName.toLowerCase();
+                    var a = document.createElement('a');
+                    a.href = '#' + heading.id;
+                    a.textContent = heading.textContent.trim();
+                    a.className = 'toc-link';
+                    a.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        var target = document.getElementById(heading.id);
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            history.replaceState(null, null, '#' + heading.id);
+                        }
+                    });
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+
+                tocNav.innerHTML = '';
+                tocNav.appendChild(ul);
+
+                // 滚动时高亮当前目录项
+                function highlightActiveToc() {
+                    var offset = 100;
+                    var activeHeading = null;
+                    for (var i = headings.length - 1; i >= 0; i--) {
+                        var rect = headings[i].getBoundingClientRect();
+                        if (rect.top <= offset) {
+                            activeHeading = headings[i];
+                            break;
+                        }
+                    }
+
+                    tocNav.querySelectorAll('.toc-link').forEach(function (link) {
+                        link.classList.remove('is-active');
+                    });
+
+                    if (activeHeading) {
+                        var activeLink = tocNav.querySelector('a[href="#' + activeHeading.id + '"]');
+                        if (activeLink) {
+                            activeLink.classList.add('is-active');
+                        }
+                    }
+                }
+
+                window.addEventListener('scroll', highlightActiveToc, { passive: true });
+                highlightActiveToc();
+            })();
+
+            // 将正文中的视频占位符转换为播放器
+            (function () {
+                var body = document.querySelector('.post-detail-body');
+                if (!body) {
+                    return;
+                }
+
+                function extractYoutubeId(url) {
+                    var match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);
+                    return match ? match[1] : null;
+                }
+
+                function extractBilibiliId(url) {
+                    var match = url.match(/(?:bilibili\.com\/video\/|b23\.tv\/)(BV[a-zA-Z0-9]+)/);
+                    return match ? match[1] : null;
+                }
+
+                function detectVideoType(url) {
+                    if (/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/.test(url)) {
+                        return 'youtube';
+                    }
+                    if (/(?:bilibili\.com\/video\/|b23\.tv\/)/.test(url)) {
+                        return 'bilibili';
+                    }
+                    return 'html5';
+                }
+
+                function createYoutubeEmbed(url) {
+                    var id = extractYoutubeId(url);
+                    if (!id) {
+                        return null;
+                    }
+                    return '<div class="video-embed"><iframe src="https://www.youtube.com/embed/' + id + '" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
+                }
+
+                function createBilibiliEmbed(url) {
+                    var id = extractBilibiliId(url);
+                    if (!id) {
+                        return null;
+                    }
+                    return '<div class="video-embed"><iframe src="https://player.bilibili.com/player.html?bvid=' + id + '&page=1&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div>';
+                }
+
+                function createHtml5Player(url) {
+                    return '<div class="video-player"><video controls preload="metadata"><source src="' + url + '" type="video/mp4">您的浏览器不支持 HTML5 视频播放，请<a href="' + url + '" target="_blank">点击下载</a>观看。</video></div>';
+                }
+
+                var links = Array.prototype.slice.call(body.querySelectorAll('a'));
+                links.forEach(function (link) {
+                    var text = link.textContent.trim();
+                    if (text.indexOf('▶ 视频：') !== 0) {
+                        return;
+                    }
+
+                    var url = link.getAttribute('href');
+                    if (!url) {
+                        return;
+                    }
+
+                    var type = detectVideoType(url);
+                    var html = null;
+                    if (type === 'youtube') {
+                        html = createYoutubeEmbed(url);
+                    } else if (type === 'bilibili') {
+                        html = createBilibiliEmbed(url);
+                    } else {
+                        html = createHtml5Player(url);
+                    }
+
+                    if (!html) {
+                        return;
+                    }
+
+                    var paragraph = link.closest('p');
+                    if (paragraph) {
+                        paragraph.className = 'post-content-video';
+                        paragraph.innerHTML = html;
+                    } else {
+                        var wrapper = document.createElement('p');
+                        wrapper.className = 'post-content-video';
+                        wrapper.innerHTML = html;
+                        link.parentNode.replaceChild(wrapper, link);
+                    }
+                });
+            })();
         });
     </script>
 @endpush

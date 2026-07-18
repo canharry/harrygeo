@@ -12,6 +12,18 @@ use Illuminate\Http\Request;
 class TagController extends Controller
 {
     /**
+     * 全部标签列表页
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index()
+    {
+        $tags = Tag::orderByDesc('id')->get();
+
+        return view('tags.index', compact('tags'));
+    }
+
+    /**
      * 标签归档页
      *
      * @param string $slug 标签 URL 标识

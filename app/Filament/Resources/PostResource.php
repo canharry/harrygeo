@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Forms\Components\RichEditor;
 use App\Filament\Resources\PostResource\Pages;
 use App\Models\Post;
 use Filament\Forms;
@@ -201,11 +202,70 @@ class PostResource extends Resource
                             ->helperText('留空时自动从正文截取前 150 字'),
 
                         // 正文内容
-                        Forms\Components\RichEditor::make('content')
+                        RichEditor::make('content')
                             ->label('正文')
                             ->required()
                             ->columnSpan('full')
-                            ->extraInputAttributes(['style' => 'min-height: 500px;']),
+                            ->toolbarButtons([
+                                'attachFiles',
+                                'blockquote',
+                                'bold',
+                                'bulletList',
+                                'codeBlock',
+                                'h2',
+                                'h3',
+                                'italic',
+                                'link',
+                                'orderedList',
+                                'redo',
+                                'strike',
+                                'underline',
+                                'undo',
+                                'videoUpload',
+                                'videoLink',
+                            ])
+                            ->extraInputAttributes(['style' => 'min-height: 700px; max-height: 1800px; overflow-y: auto; resize: vertical;']),
+
+                        // 视频上传
+                        Forms\Components\FileUpload::make('video_file')
+                            ->label('上传视频')
+                            ->directory('videos')
+                            ->maxSize(51200)
+                            ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'])
+                            ->helperText('支持 mp4、webm、ogg、mov，最大 50MB；上传后将优先使用本地上传；该视频将会在文章的最上方展示'),
+
+                        // 视频链接（外部平台）
+                        Forms\Components\TextInput::make('video_url')
+                            ->label('或填写视频链接')
+                            ->url()
+                            ->maxLength(500)
+                            ->placeholder('https://example.com/video.mp4 或 YouTube/Bilibili 链接')
+                            ->helperText('支持 YouTube、Bilibili 等外部视频链接；与上传同时存在时优先使用本地上传；该视频将会在文章的最上方展示'),
+
+                        // 原创 / 转载标记
+                        Forms\Components\Select::make('is_original')
+                            ->label('文章类型')
+                            ->options([
+                                '1' => '原创',
+                                '0' => '转载',
+                            ])
+                            ->default('1')
+                            ->required()
+                            ->reactive()
+                            ->afterStateHydrated(function (callable $set, $state) {
+                                $set('is_original', $state ? '1' : '0');
+                            })
+                            ->helperText('选择“转载”时必须填写原文链接'),
+
+                        // 转载来源链接
+                        Forms\Components\TextInput::make('original_url')
+                            ->label('原文链接')
+                            ->url()
+                            ->maxLength(500)
+                            ->placeholder('https://example.com/original-article')
+                            ->helperText('转载文章请填写原文地址')
+                            ->visible(fn (callable $get) => $get('is_original') === '0')
+                            ->required(fn (callable $get) => $get('is_original') === '0'),
 
                         // 发布状态
                         Forms\Components\Toggle::make('is_published')
@@ -273,6 +333,15 @@ class PostResource extends Resource
 
                 Tables\Columns\BooleanColumn::make('is_published')
                     ->label('已发布')
+                    ->sortable(),
+
+                Tables\Columns\IconColumn::make('is_original')
+                    ->label('原创')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-pencil')
+                    ->falseIcon('heroicon-o-share')
+                    ->trueColor('success')
+                    ->falseColor('warning')
                     ->sortable(),
 
                 Tables\Columns\BooleanColumn::make('is_featured')
