@@ -2,18 +2,115 @@
 
 @section('title', $post->title . ' - 阳光每一天')
 
+@php
+    $canonicalUrl = route('posts.show', $post->slug);
+    $seoDescription = $post->summary ?: Str::limit(strip_tags($post->content), 150);
+    $seoKeywords = $post->tags->pluck('name')->implode(',');
+    $seoImage = $post->cover_image;
+    if ($seoImage && ! filter_var($seoImage, FILTER_VALIDATE_URL) && ! str_starts_with($seoImage, '/')) {
+        $seoImage = asset('storage/' . $seoImage);
+    }
+    $siteName = config('app.name', '阳光每一天');
+@endphp
+
+@section('meta_description', $seoDescription)
+@section('meta_keywords', $seoKeywords)
+@section('canonical', $canonicalUrl)
+
+@push('meta')
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ $post->title }}">
+    <meta property="og:description" content="{{ $seoDescription }}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
+    <meta property="og:site_name" content="{{ $siteName }}">
+    <meta property="og:locale" content="zh_CN">
+    @if ($seoImage)
+        <meta property="og:image" content="{{ $seoImage }}">
+    @endif
+    <meta property="article:published_time" content="{{ $post->published_at->toIso8601String() }}">
+    <meta property="article:modified_time" content="{{ $post->updated_at->toIso8601String() }}">
+    <meta property="article:section" content="{{ $post->category->name }}">
+    @foreach ($post->tags as $tag)
+        <meta property="article:tag" content="{{ $tag->name }}">
+    @endforeach
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="{{ $seoImage ? 'summary_large_image' : 'summary' }}">
+    <meta name="twitter:title" content="{{ $post->title }}">
+    <meta name="twitter:description" content="{{ $seoDescription }}">
+    @if ($seoImage)
+        <meta name="twitter:image" content="{{ $seoImage }}">
+    @endif
+@endpush
+
+@push('structured_data')
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "{{ e($post->title) }}",
+        "description": "{{ e($seoDescription) }}",
+        @if ($seoImage)
+        "image": ["{{ e($seoImage) }}"],
+        @endif
+        "author": {
+            "@type": "Person",
+            "name": "{{ e($post->user->name ?? '博主') }}"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "{{ e($siteName) }}"
+        },
+        "datePublished": "{{ $post->published_at->toIso8601String() }}",
+        "dateModified": "{{ $post->updated_at->toIso8601String() }}",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "{{ e($canonicalUrl) }}"
+        }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "首页",
+                "item": "{{ e(route('home')) }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "{{ e($post->category->name) }}",
+                "item": "{{ e(route('categories.show', $post->category->slug)) }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "{{ e($post->title) }}",
+                "item": "{{ e($canonicalUrl) }}"
+            }
+        ]
+    }
+    </script>
+@endpush
+
 @section('content')
     <!-- 文章详情页 Hero 小横幅 -->
     <section class="page-hero">
         <div class="page-hero-overlay"></div>
         <div class="container page-hero-content">
-            <div class="post-breadcrumb">
+            <nav class="post-breadcrumb" aria-label="breadcrumb">
                 <a href="{{ route('home') }}"><i class="bi bi-house-door"></i> 首页</a>
                 <i class="bi bi-chevron-right"></i>
                 <a href="{{ route('categories.show', $post->category->slug) }}">{{ $post->category->name }}</a>
                 <i class="bi bi-chevron-right"></i>
-                <span>正文</span>
-            </div>
+                <span aria-current="page">正文</span>
+            </nav>
             <div class="post-detail-title-wrap">
                 <h1 class="post-detail-title">{{ $post->title }}</h1>
 

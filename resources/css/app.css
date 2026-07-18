@@ -1186,6 +1186,22 @@ img {
     font-size: 0.7rem;
 }
 
+.post-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.post-breadcrumb a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.post-breadcrumb [aria-current="page"] {
+    font-weight: 500;
+    opacity: 1;
+}
+
 .post-detail-title-wrap {
     display: flex;
     align-items: center;

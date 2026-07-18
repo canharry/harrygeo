@@ -8,6 +8,19 @@
     <!-- 页面标题：子页面可通过 @section('title') 覆盖 -->
     <title>@yield('title', '阳光每一天 - 个人博客')</title>
 
+    <!-- 基础 SEO Meta：子页面可通过 @section('meta_description') / @section('meta_keywords') 覆盖 -->
+    <meta name="description" content="@yield('meta_description', '阳光每一天是一个基于 Laravel 构建的个人博客，分享技术、生活与 GEO 内容。')">
+    <meta name="keywords" content="@yield('meta_keywords', '博客,技术博客,Laravel,GEO,个人博客')">
+
+    <!-- 规范链接：子页面可通过 @section('canonical') 覆盖 -->
+    <link rel="canonical" href="@yield('canonical', request()->url())">
+
+    <!-- 额外 Meta 栈（Open Graph / Twitter Card 等） -->
+    @stack('meta')
+
+    <!-- JSON-LD 结构化数据栈 -->
+    @stack('structured_data')
+
     <!-- 引入中文字体与图标 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
