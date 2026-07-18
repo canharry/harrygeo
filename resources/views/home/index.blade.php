@@ -43,8 +43,8 @@
             <!-- 搜索框 -->
             <div class="card search-card">
                 <h3 class="card-title"><i class="bi bi-search"></i> 搜索文章</h3>
-                <form action="#" method="get" class="search-form">
-                    <input type="text" name="q" placeholder="输入关键词..." class="search-input">
+                <form action="{{ route('posts.search') }}" method="get" class="search-form">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="输入关键词..." class="search-input">
                     <button type="submit" class="search-btn"><i class="bi bi-arrow-right-short"></i></button>
                 </form>
             </div>

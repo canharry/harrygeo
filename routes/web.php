@@ -20,6 +20,9 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('ho
 // 文章列表页路由
 Route::get('/posts', [App\Http\Controllers\PostController::class, 'index'])->name('posts.index');
 
+// 文章搜索路由
+Route::get('/search', [App\Http\Controllers\PostController::class, 'search'])->name('posts.search');
+
 // 文章详情页路由
 Route::get('/posts/{slug}', [App\Http\Controllers\PostController::class, 'show'])->name('posts.show');
 
@@ -69,6 +72,18 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
     Route::get('/register', [App\Http\Controllers\AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [App\Http\Controllers\AuthController::class, 'register']);
+
+    // 忘记密码 / 重置密码
+    Route::get('/forgot-password', [App\Http\Controllers\AuthController::class, 'showForgotPasswordForm'])
+        ->name('password.request');
+    Route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'sendResetLinkEmail'])
+        ->name('password.email')
+        ->middleware('throttle:5,1');
+    Route::get('/reset-password/{token}', [App\Http\Controllers\AuthController::class, 'showResetForm'])
+        ->name('password.reset');
+    Route::post('/reset-password', [App\Http\Controllers\AuthController::class, 'reset'])
+        ->name('password.update')
+        ->middleware('throttle:5,1');
 });
 
 Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])

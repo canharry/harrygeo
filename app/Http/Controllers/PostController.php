@@ -36,6 +36,42 @@ class PostController extends Controller
     }
 
     /**
+     * 文章搜索页
+     *
+     * 根据关键词在标题、摘要、正文中搜索已发布文章
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\View\View
+     */
+    public function search(Request $request)
+    {
+        $query = trim($request->input('q', ''));
+
+        $posts = Post::with(['category', 'tags', 'user'])
+            ->withCount('comments')
+            ->where('is_published', true)
+            ->when($query !== '', function ($builder) use ($query) {
+                $search = '%' . $query . '%';
+                $builder->where(function ($q) use ($search) {
+                    $q->where('title', 'like', $search)
+                      ->orWhere('summary', 'like', $search)
+                      ->orWhere('content', 'like', $search)
+                      ->orWhereHas('category', function ($cq) use ($search) {
+                          $cq->where('name', 'like', $search);
+                      })
+                      ->orWhereHas('tags', function ($tq) use ($search) {
+                          $tq->where('name', 'like', $search);
+                      });
+                });
+            })
+            ->orderByDesc('published_at')
+            ->paginate(12)
+            ->withQueryString();
+
+        return view('posts.search', compact('posts', 'query'));
+    }
+
+    /**
      * 文章详情页
      *
      * @param string $slug 文章 URL 标识

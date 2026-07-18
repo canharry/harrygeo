@@ -67,9 +67,10 @@
                     </button>
                 </form>
 
-                <p style="margin-top: 20px; text-align: center; font-size: 0.9rem; color: var(--text-light);">
-                    还没有账号？<a href="{{ route('register') }}" style="color: var(--primary); font-weight: 500;">立即注册</a>
-                </p>
+                <div style="margin-top: 20px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; color: var(--text-light);">
+                    <a href="{{ route('password.request') }}" style="color: var(--primary); font-weight: 500;">忘记密码？</a>
+                    <span>还没有账号？<a href="{{ route('register') }}" style="color: var(--primary); font-weight: 500;">立即注册</a></span>
+                </div>
             </div>
         </div>
     </div>

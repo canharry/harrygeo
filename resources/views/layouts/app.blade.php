@@ -29,8 +29,16 @@
 
             <!-- 桌面端菜单 -->
             <ul class="nav-menu">
+                {{-- 移动端菜单中的搜索 --}}
+                <li class="nav-search-mobile">
+                    <form action="{{ route('posts.search') }}" method="get" class="nav-search-form">
+                        <input type="text" name="q" value="{{ request('q') }}" placeholder="搜索文章..." class="nav-search-input">
+                        <button type="submit" class="nav-search-btn"><i class="bi bi-search"></i></button>
+                    </form>
+                </li>
+
                 <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}"><i class="bi bi-house-door"></i> 首页</a></li>
-                <li><a href="{{ route('posts.index') }}" class="{{ request()->routeIs('posts.index', 'posts.show') ? 'active' : '' }}"><i class="bi bi-journal-text"></i> 文章</a></li>
+                <li><a href="{{ route('posts.index') }}" class="{{ request()->routeIs('posts.index', 'posts.show', 'posts.search') ? 'active' : '' }}"><i class="bi bi-journal-text"></i> 文章</a></li>
                 <li><a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.index', 'categories.show') ? 'active' : '' }}"><i class="bi bi-grid"></i> 分类</a></li>
                 <li><a href="{{ route('tags.index') }}" class="{{ request()->routeIs('tags.index', 'tags.show') ? 'active' : '' }}"><i class="bi bi-tag"></i> 标签</a></li>
                 <li>
@@ -68,6 +76,12 @@
                     @endauth
                 </li>
             </ul>
+
+            <!-- 桌面端搜索 -->
+            <form action="{{ route('posts.search') }}" method="get" class="nav-search">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="搜索文章..." class="nav-search-input">
+                <button type="submit" class="nav-search-btn"><i class="bi bi-search"></i></button>
+            </form>
 
             <!-- 用户认证入口 -->
             <div class="nav-auth">

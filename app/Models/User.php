@@ -64,6 +64,17 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * 发送中文密码重置通知
+     *
+     * @param string $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
+
+    /**
      * 用户的文章
      */
     public function posts()
