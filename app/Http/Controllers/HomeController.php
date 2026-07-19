@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\FriendshipLink;
 use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -46,12 +47,11 @@ class HomeController extends Controller
             ->take(20)
             ->get();
 
-        // 友情链接数据（暂用静态数据，后续可扩展为模型）
-        $friends = [
-            ['name' => 'Laravel 中文网', 'url' => 'https://laravel-china.org'],
-            ['name' => '阮一峰博客', 'url' => 'https://ruanyifeng.com'],
-            ['name' => '掘金', 'url' => 'https://juejin.cn'],
-        ];
+        // 友情链接数据（从后台管理的数据库中读取）
+        $friends = FriendshipLink::shown()
+            ->get()
+            ->map(fn (FriendshipLink $link) => ['name' => $link->name, 'url' => $link->url])
+            ->all();
 
         // 博主信息：登录后显示当前用户的信息与统计
         $user = Auth::user();

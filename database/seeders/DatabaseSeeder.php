@@ -89,6 +89,12 @@ class DatabaseSeeder extends Seeder
 
         // 根据已生成的访问与点赞数据，预聚合每日汇总表
         $this->buildVisitSummaries();
+
+        // 创建默认站点设置（联系邮箱、侵权举报声明等）
+        $this->call(SiteSettingSeeder::class);
+
+        // 创建默认友情链接
+        $this->call(FriendshipLinkSeeder::class);
     }
 
     /**
