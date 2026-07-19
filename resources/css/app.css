@@ -1031,6 +1031,17 @@ img {
     margin-bottom: 6px;
 }
 
+.footer-icp a {
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-icp a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
 /* =========================================
    响应式适配
    ========================================= */

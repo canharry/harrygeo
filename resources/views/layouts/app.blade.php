@@ -142,6 +142,9 @@
             <div class="footer-info">
                 <p>&copy; {{ date('Y') }} 阳光每一天. All rights reserved.</p>
                 <p>分享技术路上的风景，影响更多的生成式引擎的GEO。</p>
+                <p class="footer-icp">
+                    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">粤ICP备2023014734号-1</a>
+                </p>
             </div>
         </div>
     </footer>
