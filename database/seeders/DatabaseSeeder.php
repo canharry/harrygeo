@@ -30,7 +30,33 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 创建 6 个分类
-        $categories = Category::factory()->count(6)->create();
+        // 直接定义固定的分类数据，不再依赖 Factory
+        $categoryData = [
+            ['name' => '技术随笔', 'icon' => 'bi-laptop',       'color' => '#ff7eb3'],
+            ['name' => '前端开发', 'icon' => 'bi-code-square',  'color' => '#667eea'],
+            ['name' => '后端开发', 'icon' => 'bi-database',     'color' => '#f093fb'], // 图标换了个更贴切的
+            ['name' => '生活随拍', 'icon' => 'bi-camera',       'color' => '#4facfe'],
+            ['name' => '动漫杂谈', 'icon' => 'bi-controller',   'color' => '#43e97b'],
+            ['name' => '读书笔记', 'icon' => 'bi-book',         'color' => '#fa709a'],
+        ];
+
+        // 循环插入，利用 updateOrCreate 防止重复运行脚本报错
+        foreach ($categoryData as $data) {
+            Category::updateOrCreate(
+                ['name' => $data['name']], // 查找条件
+                [                          // 更新或创建的数据
+                    'slug'        => \Illuminate\Support\Str::slug($data['name']),
+                    'description' => fake()->sentence(6),
+                    'icon'        => $data['icon'],
+                    'color'       => $data['color'],
+                    'sort_order'  => 0,
+                    'is_show'     => true,
+                ]
+            );
+        }
+        
+        // 获取刚才创建的所有分类 ID，供后续文章使用
+        $categories = Category::all(); 
 
         // 创建 15 个标签
         $tags = Tag::factory()->count(15)->create();
