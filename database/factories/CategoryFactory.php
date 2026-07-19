@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
+use App\Services\SlugService;
 
 /**
  * 分类模型工厂
@@ -52,7 +52,7 @@ class CategoryFactory extends Factory
 
         return [
             'name'        => $name,
-            'slug'        => Str::slug($name),
+            'slug'        => SlugService::make($name, 'category'),
             'description' => $this->faker->sentence(6),
             'icon'        => $this->faker->randomElement($icons),
             'color'       => $this->faker->randomElement($colors),

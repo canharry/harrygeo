@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TagResource\Pages;
 use App\Models\Tag;
+use App\Services\SlugService;
 use Filament\Forms;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
@@ -46,7 +47,7 @@ class TagResource extends Resource
                             ->unique(ignoreRecord: true)
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
-                                $set('slug', \Illuminate\Support\Str::slug($state));
+                                $set('slug', SlugService::make($state, 'tag'));
                             }),
 
                         // URL 别名

@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Services\SlugService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 /**
  * 博客文章模型
@@ -148,14 +148,11 @@ class Post extends Model
 
     /**
      * 根据标题生成唯一的 URL 别名
+     * 对中文标题会自动转换为拼音 slug
      */
     public static function generateUniqueSlug(string $title, ?int $ignoreId = null): string
     {
-        $slug = Str::slug($title);
-
-        if (empty($slug)) {
-            $slug = 'post-' . time();
-        }
+        $slug = SlugService::make($title, 'post');
 
         $originalSlug = $slug;
         $counter = 1;

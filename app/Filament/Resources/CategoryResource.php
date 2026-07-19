@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages;
 use App\Models\Category;
+use App\Services\SlugService;
 use Filament\Forms;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
@@ -46,7 +47,7 @@ class CategoryResource extends Resource
                             ->unique(ignoreRecord: true)
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
-                                $set('slug', \Illuminate\Support\Str::slug($state));
+                                $set('slug', SlugService::make($state, 'category'));
                             }),
 
                         // URL 别名

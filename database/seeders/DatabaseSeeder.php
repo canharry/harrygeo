@@ -12,7 +12,7 @@ use App\Models\VisitSummary;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str; // 引入 Str 辅助类
+use App\Services\SlugService;
 
 class DatabaseSeeder extends Seeder
 {
@@ -43,9 +43,9 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($categoryData as $data) {
-            // 手动生成 slug，确保不为空
-            $slug = Str::slug($data['name']);
-            
+            // 使用 SlugService 生成拼音 slug，确保中文分类名不为空
+            $slug = SlugService::make($data['name'], 'category');
+
             DB::table('categories')->updateOrInsert(
                 ['name' => $data['name']], // 查找条件
                 [                          // 更新或插入的数据

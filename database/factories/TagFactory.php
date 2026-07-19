@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Services\SlugService;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
  * 标签模型工厂
@@ -39,7 +39,7 @@ class TagFactory extends Factory
 
         return [
             'name'  => $name,
-            'slug'  => Str::slug($name),
+            'slug'  => SlugService::make($name, 'tag'),
             'color' => $this->faker->randomElement($colors),
         ];
     }

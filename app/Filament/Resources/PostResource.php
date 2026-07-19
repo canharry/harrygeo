@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Forms\Components\RichEditor;
 use App\Filament\Resources\PostResource\Pages;
 use App\Models\Post;
+use App\Services\SlugService;
 use Filament\Forms;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
@@ -85,7 +86,7 @@ class PostResource extends Resource
                             )
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
-                                $set('slug', \Illuminate\Support\Str::slug($state));
+                                $set('slug', SlugService::make($state, 'post'));
                             }),
 
                         // URL 别名
@@ -111,7 +112,7 @@ class PostResource extends Resource
                                     ->unique('categories', 'name')
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set) {
-                                        $set('slug', \Illuminate\Support\Str::slug($state));
+                                        $set('slug', SlugService::make($state, 'post'));
                                     }),
                                 Forms\Components\TextInput::make('slug')
                                     ->label('URL 别名')
@@ -132,7 +133,7 @@ class PostResource extends Resource
                             ->createOptionUsing(function (array $data): int {
                                 $category = \App\Models\Category::create([
                                     'name'        => $data['name'],
-                                    'slug'        => $data['slug'] ?: \Illuminate\Support\Str::slug($data['name']),
+                                    'slug'        => $data['slug'] ?: SlugService::make($data['name'], 'category'),
                                     'color'       => $data['color'] ?? '#667eea',
                                     'icon'        => $data['icon'] ?? 'bi-folder',
                                     'description' => $data['description'] ?? null,
@@ -158,7 +159,7 @@ class PostResource extends Resource
                                     ->unique('tags', 'name')
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set) {
-                                        $set('slug', \Illuminate\Support\Str::slug($state));
+                                        $set('slug', SlugService::make($state, 'post'));
                                     }),
                                 Forms\Components\TextInput::make('slug')
                                     ->label('URL 别名')
@@ -171,7 +172,7 @@ class PostResource extends Resource
                             ->createOptionUsing(function (array $data): int {
                                 $tag = \App\Models\Tag::create([
                                     'name'  => $data['name'],
-                                    'slug'  => $data['slug'] ?: \Illuminate\Support\Str::slug($data['name']),
+                                    'slug'  => $data['slug'] ?: SlugService::make($data['name'], 'tag'),
                                     'color' => $data['color'] ?? '#ff7eb3',
                                 ]);
 
