@@ -23,15 +23,32 @@ class CategoryFactory extends Factory
         $icons = ['bi-laptop', 'bi-code-square', 'bi-book', 'bi-camera', 'bi-music-note-beamed', 'bi-controller'];
 
     //    $name = $this->faker->unique()->randomElement([
-          $name = $this->faker->randomElement([  
-            '技术随笔',
-            '前端开发',
-            '后端开发',
-            '生活随拍',
-            '动漫杂谈',
-            '读书笔记',
-            '旅行日记',
-        ]);
+        //   $name = $this->faker->randomElement([  
+        //     '技术随笔',
+        //     '前端开发',
+        //     '后端开发',
+        //     '生活随拍',
+        //     '动漫杂谈',
+        //     '读书笔记',
+        //     '旅行日记',
+        // ]);
+
+        // 定义一个静态数组源
+        static $names = [
+            '技术随笔', '前端开发', '后端开发', '生活随拍',
+            '动漫杂谈', '读书笔记', '旅行日记',
+        ];
+
+        // 定义一个静态计数器
+        static $index = 0;
+
+        // 如果取完了，就重置（防止请求数量超过数组长度时报错）
+        if (!isset($names[$index])) {
+            $index = 0;
+        }
+
+        // 取出当前名字，并让计数器 +1
+        $name = $names[$index++];
 
         return [
             'name'        => $name,
