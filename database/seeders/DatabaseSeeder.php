@@ -12,6 +12,7 @@ use App\Models\VisitSummary;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str; // 引入 Str 辅助类
 
 class DatabaseSeeder extends Seeder
 {
@@ -31,32 +32,37 @@ class DatabaseSeeder extends Seeder
 
         // 创建 6 个分类
         // 直接定义固定的分类数据，不再依赖 Factory
+        //创建分类 (使用 DB 门面绕过 Model 事件，防止 slug 被清空)
         $categoryData = [
             ['name' => '技术随笔', 'icon' => 'bi-laptop',       'color' => '#ff7eb3'],
             ['name' => '前端开发', 'icon' => 'bi-code-square',  'color' => '#667eea'],
-            ['name' => '后端开发', 'icon' => 'bi-database',     'color' => '#f093fb'], // 图标换了个更贴切的
+            ['name' => '后端开发', 'icon' => 'bi-database',     'color' => '#f093fb'],
             ['name' => '生活随拍', 'icon' => 'bi-camera',       'color' => '#4facfe'],
             ['name' => '动漫杂谈', 'icon' => 'bi-controller',   'color' => '#43e97b'],
             ['name' => '读书笔记', 'icon' => 'bi-book',         'color' => '#fa709a'],
         ];
 
-        // 循环插入，利用 updateOrCreate 防止重复运行脚本报错
         foreach ($categoryData as $data) {
-            Category::updateOrCreate(
+            // 手动生成 slug，确保不为空
+            $slug = Str::slug($data['name']);
+            
+            DB::table('categories')->updateOrInsert(
                 ['name' => $data['name']], // 查找条件
-                [                          // 更新或创建的数据
-                    'slug'        => \Illuminate\Support\Str::slug($data['name']),
+                [                          // 更新或插入的数据
+                    'slug'        => $slug,
                     'description' => fake()->sentence(6),
                     'icon'        => $data['icon'],
                     'color'       => $data['color'],
                     'sort_order'  => 0,
                     'is_show'     => true,
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
                 ]
             );
         }
-        
         // 获取刚才创建的所有分类 ID，供后续文章使用
-        $categories = Category::all(); 
+        // 注意：这里必须重新查询，因为上面用的是 DB 插入，内存中的 Category 模型可能没同步
+        $categories = \App\Models\Category::all();  
 
         // 创建 15 个标签
         $tags = Tag::factory()->count(15)->create();
