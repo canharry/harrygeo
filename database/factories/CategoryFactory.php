@@ -22,7 +22,8 @@ class CategoryFactory extends Factory
         // 预定义的分类图标
         $icons = ['bi-laptop', 'bi-code-square', 'bi-book', 'bi-camera', 'bi-music-note-beamed', 'bi-controller'];
 
-        $name = $this->faker->unique()->randomElement([
+    //    $name = $this->faker->unique()->randomElement([
+          $name = $this->faker->randomElement([  
             '技术随笔',
             '前端开发',
             '后端开发',
