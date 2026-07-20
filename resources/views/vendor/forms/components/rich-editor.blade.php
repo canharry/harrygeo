@@ -206,7 +206,7 @@
                             </div>
                         @endif
 
-                        @if ($hasToolbarButton(['h1', 'h2', 'h3']))
+                        @if ($hasToolbarButton(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']))
                             <div
                                 data-trix-button-group="heading-tools"
                                 class="flex items-stretch space-x-1 rtl:space-x-reverse"
@@ -214,30 +214,60 @@
                                 @if ($hasToolbarButton('h1'))
                                     <x-forms::rich-editor.toolbar-button
                                         data-trix-attribute="heading1"
-                                        title="{{ __('forms::components.rich_editor.toolbar_buttons.h1') }}"
+                                        title="H1"
                                         tabindex="-1"
                                     >
-                                        {{ __('forms::components.rich_editor.toolbar_buttons.h1') }}
+                                        H1
                                     </x-forms::rich-editor.toolbar-button>
                                 @endif
 
                                 @if ($hasToolbarButton('h2'))
                                     <x-forms::rich-editor.toolbar-button
                                         data-trix-attribute="heading"
-                                        title="{{ __('forms::components.rich_editor.toolbar_buttons.h2') }}"
+                                        title="H2"
                                         tabindex="-1"
                                     >
-                                        {{ __('forms::components.rich_editor.toolbar_buttons.h2') }}
+                                        H2
                                     </x-forms::rich-editor.toolbar-button>
                                 @endif
 
                                 @if ($hasToolbarButton('h3'))
                                     <x-forms::rich-editor.toolbar-button
                                         data-trix-attribute="subHeading"
-                                        title="{{ __('forms::components.rich_editor.toolbar_buttons.h3') }}"
+                                        title="H3"
                                         tabindex="-1"
                                     >
-                                        {{ __('forms::components.rich_editor.toolbar_buttons.h3') }}
+                                        H3
+                                    </x-forms::rich-editor.toolbar-button>
+                                @endif
+
+                                @if ($hasToolbarButton('h4'))
+                                    <x-forms::rich-editor.toolbar-button
+                                        data-trix-attribute="heading4"
+                                        title="H4"
+                                        tabindex="-1"
+                                    >
+                                        H4
+                                    </x-forms::rich-editor.toolbar-button>
+                                @endif
+
+                                @if ($hasToolbarButton('h5'))
+                                    <x-forms::rich-editor.toolbar-button
+                                        data-trix-attribute="heading5"
+                                        title="H5"
+                                        tabindex="-1"
+                                    >
+                                        H5
+                                    </x-forms::rich-editor.toolbar-button>
+                                @endif
+
+                                @if ($hasToolbarButton('h6'))
+                                    <x-forms::rich-editor.toolbar-button
+                                        data-trix-attribute="heading6"
+                                        title="H6"
+                                        tabindex="-1"
+                                    >
+                                        H6
                                     </x-forms::rich-editor.toolbar-button>
                                 @endif
                             </div>
@@ -370,7 +400,7 @@
                                 >
                                     <svg
                                         @class([
-                                            'h-4',
+                                            'h-4 w-4',
                                             'dark:fill-current' => config('forms.dark_mode'),
                                         ])
                                         aria-hidden="true"
@@ -679,6 +709,43 @@
 @once
     <script>
         (function () {
+            // 注册 Trix 原本不支持的 h4/h5/h6 块级属性
+            // 使用 trix-before-initialize 事件确保在任何编辑器初始化前完成配置
+            if (! window.__trixHeadingsConfigured) {
+                window.__trixHeadingsConfigured = true;
+
+                document.addEventListener('trix-before-initialize', function (event) {
+                    if (! window.Trix || ! Trix.config || ! Trix.config.blockAttributes) {
+                        return;
+                    }
+
+                    if (! Trix.config.blockAttributes.heading4) {
+                        Trix.config.blockAttributes.heading4 = {
+                            tagName: 'h4',
+                            terminal: true,
+                            breakOnReturn: true,
+                            group: false,
+                        };
+                    }
+                    if (! Trix.config.blockAttributes.heading5) {
+                        Trix.config.blockAttributes.heading5 = {
+                            tagName: 'h5',
+                            terminal: true,
+                            breakOnReturn: true,
+                            group: false,
+                        };
+                    }
+                    if (! Trix.config.blockAttributes.heading6) {
+                        Trix.config.blockAttributes.heading6 = {
+                            tagName: 'h6',
+                            terminal: true,
+                            breakOnReturn: true,
+                            group: false,
+                        };
+                    }
+                });
+            }
+
             if (window.__trixVideoToolsInitialized) {
                 return;
             }
