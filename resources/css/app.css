@@ -1502,6 +1502,65 @@ img {
     background: transparent;
 }
 
+/* 文章正文中的表格样式 - 简洁白灰风格 */
+.post-detail-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.post-detail-body thead {
+    background: #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.post-detail-body th,
+.post-detail-body td {
+    padding: 12px 16px;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    vertical-align: top;
+}
+
+.post-detail-body th {
+    font-weight: 600;
+    color: #374151;
+}
+
+.post-detail-body tbody tr {
+    background: #ffffff;
+}
+
+.post-detail-body tbody tr:hover {
+    background: #f9fafb;
+}
+
+.post-detail-body tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.post-detail-body td:last-child,
+.post-detail-body th:last-child {
+    border-right: none;
+}
+
+/* 首列加粗，与图二风格一致 */
+.post-detail-body td:first-child {
+    font-weight: 600;
+    color: #111827;
+}
+
+.post-detail-body td > p:last-child {
+    margin-bottom: 0;
+}
+
 .post-detail-copyright {
     display: flex;
     align-items: center;

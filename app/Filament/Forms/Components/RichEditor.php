@@ -19,6 +19,7 @@ class RichEditor extends BaseRichEditor
         'orderedList',
         'redo',
         'strike',
+        'table',
         'underline',
         'undo',
         'videoUpload',

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ContentRenderer;
 use App\Services\SlugService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -164,5 +165,13 @@ class Post extends Model
         }
 
         return $slug;
+    }
+
+    /**
+     * 获取渲染后的正文内容：解析 Markdown 表格并转换图片路径。
+     */
+    public function renderedContent(): string
+    {
+        return ContentRenderer::render($this->content ?? '');
     }
 }

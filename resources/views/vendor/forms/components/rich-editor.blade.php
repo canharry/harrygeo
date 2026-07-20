@@ -358,6 +358,38 @@
                             </div>
                         @endif
 
+                        @if ($hasToolbarButton('table'))
+                            <div
+                                data-trix-button-group="table-tools"
+                                class="flex items-stretch space-x-1 rtl:space-x-reverse"
+                            >
+                                <x-forms::rich-editor.toolbar-button
+                                    data-trix-action="x-table"
+                                    title="插入表格"
+                                    tabindex="-1"
+                                >
+                                    <svg
+                                        @class([
+                                            'h-4',
+                                            'dark:fill-current' => config('forms.dark_mode'),
+                                        ])
+                                        aria-hidden="true"
+                                        focusable="false"
+                                        data-prefix="fas"
+                                        data-icon="table"
+                                        role="img"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 512 512"
+                                    >
+                                        <path
+                                            fill="currentColor"
+                                            d="M64 256V160H224v96H64zm0 64H224v96H64V320zm224-160V64H448v96H288zM448 320H288v96H448V320zM0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96z"
+                                        ></path>
+                                    </svg>
+                                </x-forms::rich-editor.toolbar-button>
+                            </div>
+                        @endif
+
                         @if ($hasToolbarButton('attachFiles'))
                             <div
                                 data-trix-button-group="file-tools"
@@ -551,6 +583,59 @@
                             </div>
                         </div>
                     </div>
+
+                    <div
+                        data-trix-dialog="x-table"
+                        class="trix-dialog trix-dialog--table"
+                    >
+                        <div class="trix-dialog__table-fields flex items-center gap-2">
+                            <input
+                                name="table-rows"
+                                type="number"
+                                min="1"
+                                max="50"
+                                value="3"
+                                placeholder="行数"
+                                aria-label="表格行数"
+                                data-trix-input
+                                class="trix-input trix-input--dialog w-20"
+                            />
+                            <span class="text-gray-500">×</span>
+                            <input
+                                name="table-cols"
+                                type="number"
+                                min="1"
+                                max="50"
+                                value="3"
+                                placeholder="列数"
+                                aria-label="表格列数"
+                                data-trix-input
+                                class="trix-input trix-input--dialog w-20"
+                            />
+                            <label class="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                                <input
+                                    name="table-header"
+                                    type="checkbox"
+                                    checked
+                                    data-trix-input
+                                    class="rounded border-gray-300"
+                                />
+                                表头
+                            </label>
+                            <input
+                                value="插入"
+                                data-trix-method="x-table-insert"
+                                type="button"
+                                class="trix-button trix-button--dialog"
+                            />
+                            <input
+                                value="取消"
+                                data-trix-method="x-table-cancel"
+                                type="button"
+                                class="trix-button trix-button--dialog"
+                            />
+                        </div>
+                    </div>
                 </div>
             </trix-toolbar>
 
@@ -684,30 +769,127 @@
                 insertVideoPlaceholder(editor, url, type, filename);
             }
 
-            document.addEventListener('click', function (event) {
-                var button = event.target.closest('button[data-trix-action="x-video-upload"], button[data-trix-action="x-video-link"]');
-                if (!button) {
-                    return;
+            function generateMarkdownTable(rows, cols, hasHeader) {
+                var lines = [];
+                var headerLabels = [];
+                for (var c = 0; c < cols; c++) {
+                    headerLabels.push(hasHeader ? ' 表头 ' + (c + 1) + ' ' : ' 列 ' + (c + 1) + ' ');
+                }
+                lines.push('|' + headerLabels.join('|') + '|');
+
+                var separator = [];
+                for (var c = 0; c < cols; c++) {
+                    separator.push(' --- ');
+                }
+                lines.push('|' + separator.join('|') + '|');
+
+                var dataRows = Math.max(0, rows - 1);
+                for (var r = 0; r < dataRows; r++) {
+                    var row = [];
+                    for (var c = 0; c < cols; c++) {
+                        row.push(' 单元格 ');
+                    }
+                    lines.push('|' + row.join('|') + '|');
                 }
 
+                return lines.join('\n');
+            }
+
+            function getTableDialog(toolbar) {
+                return toolbar.querySelector('[data-trix-dialog="x-table"]');
+            }
+
+            function openTableDialog(button) {
                 var toolbar = button.closest('trix-toolbar');
                 if (!toolbar) {
                     return;
                 }
 
-                var editorId = toolbar.id.replace('trix-toolbar-', '');
-                var editorElement = document.getElementById(editorId);
-                if (!editorElement || !editorElement.editor) {
+                var dialog = getTableDialog(toolbar);
+                if (!dialog) {
                     return;
                 }
 
-                event.preventDefault();
-                event.stopPropagation();
+                dialog.style.display = 'block';
+                var rowsInput = dialog.querySelector('input[name="table-rows"]');
+                if (rowsInput) {
+                    rowsInput.focus();
+                    rowsInput.select();
+                }
+            }
 
-                if (button.getAttribute('data-trix-action') === 'x-video-upload') {
-                    handleVideoUpload(editorElement.editor);
-                } else {
-                    handleVideoLink(editorElement.editor);
+            function closeTableDialog(dialog) {
+                dialog.style.display = 'none';
+            }
+
+            function insertMarkdownTable(editor, dialog) {
+                var rowsInput = dialog.querySelector('input[name="table-rows"]');
+                var colsInput = dialog.querySelector('input[name="table-cols"]');
+                var headerInput = dialog.querySelector('input[name="table-header"]');
+
+                var rows = parseInt(rowsInput ? rowsInput.value : 3, 10) || 3;
+                var cols = parseInt(colsInput ? colsInput.value : 3, 10) || 3;
+                var hasHeader = headerInput ? headerInput.checked : true;
+
+                rows = Math.max(1, Math.min(50, rows));
+                cols = Math.max(1, Math.min(50, cols));
+
+                var markdown = generateMarkdownTable(rows, cols, hasHeader);
+                editor.insertString('\n' + markdown + '\n');
+            }
+
+            document.addEventListener('click', function (event) {
+                var button = event.target.closest('button[data-trix-action="x-video-upload"], button[data-trix-action="x-video-link"], button[data-trix-action="x-table"]');
+                if (button) {
+                    var toolbar = button.closest('trix-toolbar');
+                    if (!toolbar) {
+                        return;
+                    }
+
+                    var editorId = toolbar.id.replace('trix-toolbar-', '');
+                    var editorElement = document.getElementById(editorId);
+                    if (!editorElement || !editorElement.editor) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    var action = button.getAttribute('data-trix-action');
+                    if (action === 'x-video-upload') {
+                        handleVideoUpload(editorElement.editor);
+                    } else if (action === 'x-video-link') {
+                        handleVideoLink(editorElement.editor);
+                    } else if (action === 'x-table') {
+                        openTableDialog(button);
+                    }
+
+                    return;
+                }
+
+                var tableButton = event.target.closest('input[data-trix-method="x-table-insert"], input[data-trix-method="x-table-cancel"]');
+                if (tableButton) {
+                    var dialog = tableButton.closest('[data-trix-dialog="x-table"]');
+                    if (!dialog) {
+                        return;
+                    }
+
+                    var toolbar = dialog.closest('trix-toolbar');
+                    if (!toolbar) {
+                        return;
+                    }
+
+                    var editorId = toolbar.id.replace('trix-toolbar-', '');
+                    var editorElement = document.getElementById(editorId);
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    var method = tableButton.getAttribute('data-trix-method');
+                    if (method === 'x-table-insert' && editorElement && editorElement.editor) {
+                        insertMarkdownTable(editorElement.editor, dialog);
+                    }
+                    closeTableDialog(dialog);
                 }
             });
         })();

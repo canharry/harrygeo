@@ -246,7 +246,7 @@
 
                 <!-- 文章正文 -->
                 <div class="post-detail-body">
-                    {!! $post->content !!}
+                    {!! $post->renderedContent() !!}
                 </div>
 
                 <!-- 标签 -->
