@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AiVisit;
 use App\Models\Post;
 use App\Models\PostAiReference;
 use App\Models\Visit;
