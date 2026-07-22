@@ -65,7 +65,7 @@ class TrackVisit
             // 识别并记录 AI 爬虫访问（不计入普通访问统计）
             $aiName = $this->detectAiBot($request);
             if ($aiName && $postId) {
-                $this->recordAiReference($postId, $aiName);
+                $this->recordAiReference($request, $postId, $aiName);
             }
 
             if (! $this->shouldTrack($request)) {
@@ -181,11 +181,21 @@ class TrackVisit
     /**
      * 记录 AI 平台对文章的收录次数
      */
-    protected function recordAiReference(int $postId, string $aiName): void
+    protected function recordAiReference(Request $request, int $postId, string $aiName): void
     {
         PostAiReference::updateOrCreate(
             ['post_id' => $postId, 'name' => $aiName],
             ['sort_order' => 0]
         )->increment('count');
+
+        // 同时记录 AI 访问明细，供后台列表查询
+        AiVisit::create([
+            'post_id'    => $postId,
+            'ai_name'    => $aiName,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'page_url'   => $request->fullUrl(),
+            'visited_at' => now(),
+        ]);
     }
 }
