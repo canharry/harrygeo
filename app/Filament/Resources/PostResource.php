@@ -193,7 +193,8 @@ class PostResource extends Resource
                             ->url()
                             ->maxLength(500)
                             ->placeholder('https://example.com/image.jpg')
-                            ->helperText('留空则使用默认渐变占位图'),
+                            ->helperText('留空则使用默认渐变占位图')
+                            ->disabled(fn (callable $get) => ! empty($get('cover_image_file'))),
 
                         // 文章摘要
                         Forms\Components\Textarea::make('excerpt')

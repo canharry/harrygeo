@@ -25,6 +25,11 @@ class EditPost extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
+        // 封面图：数据库中的本地路径回填到上传组件，使编辑时能看到已上传的封面
+        if (! empty($data['cover_image']) && ! filter_var($data['cover_image'], FILTER_VALIDATE_URL)) {
+            $data['cover_image_file'] = $data['cover_image'];
+        }
+
         // 根据数据库中的 video 值回填上传组件或链接输入框
         if (! empty($data['video'])) {
             if (filter_var($data['video'], FILTER_VALIDATE_URL)) {
