@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\AiVisit;
 use App\Models\Post;
 use App\Models\PostAiReference;
+use App\Models\SearchEngineVisit;
 use App\Models\Visit;
 use App\Models\VisitSummary;
 use App\Services\GeoService;
@@ -30,20 +31,50 @@ class TrackVisit
     /**
      * 已知 AI 平台爬虫 UA 关键字映射
      * 键为展示名称，值为匹配关键字（小写）
+     * 注意：baiduspider / googlebot / bingbot（搜索版）等是搜索引擎蜘蛛，
+     *       若专门用于 AI 训练/收录的爬虫（如 Google-Extended / Applebot-Extended）
+     *       才计入 AI 访问。
      */
     protected array $aiBots = [
-        'Kimi'       => ['kimibot', 'kimi'],
-        'DeepSeek'   => ['deepseekbot', 'deepseek'],
-        '豆包'       => ['bytespider'],
-        'ChatGPT'    => ['gptbot', 'chatgpt-user', 'openai'],
-        'Gemini'     => ['google-extended'],
-        'Claude'     => ['claudebot', 'anthropic-ai'],
-        '文心一言'   => ['baiduspider'],
+        // 国内主流 AI 平台
+        '文心一言'   => ['erniebot', 'baidu-aipc', 'baidu-aibot'],
         '千问'       => ['qwen'],
+        '豆包'       => ['doubaobot', 'bytespider'],
+        '字节跳动'   => ['bytespider'],
+        '华为盘古'   => ['petalbot'],
+        'DeepSeek'   => ['deepseekbot', 'deepseek'],
+        'Kimi'       => ['kimibot', 'kimi'],
         '智谱清言'   => ['chatglm'],
         '讯飞星火'   => ['spark'],
         '天工'       => ['tiangong'],
         'MiniMax'    => ['minimax'],
+
+        // 海外主流 AI 平台
+        'ChatGPT'          => ['gptbot', 'chatgpt-user'],
+        'OpenAI Search'    => ['oai-searchbot'],
+        'Gemini'           => ['google-extended'],
+        'GoogleOther'      => ['googleother'],
+        'Claude'           => ['claudebot', 'claude-searchbot'],
+        'Meta'             => ['meta-externalagent'],
+        'Amazon'           => ['amazonbot'],
+        'Apple Intelligence' => ['applebot-extended'],
+        'Perplexity'       => ['perplexitybot'],
+        'Common Crawl'     => ['ccbot'],
+    ];
+
+    /**
+     * 已知搜索引擎蜘蛛 UA 关键字映射
+     * 键为展示名称，值为匹配关键字（小写）
+     */
+    protected array $searchEngineBots = [
+        '百度搜索' => ['baiduspider'],
+        '谷歌搜索' => ['googlebot'],
+        '必应搜索' => ['bingbot'],
+        '搜狗搜索' => ['sogou'],
+        '360搜索'  => ['360spider'],
+        'Yandex'   => ['yandex'],
+        '神马搜索' => ['yisouspider'],
+        '头条搜索' => ['toutiaospider'],
     ];
 
     /**
@@ -63,10 +94,18 @@ class TrackVisit
         try {
             $postId = $this->resolvePostId($request);
 
-            // 识别并记录 AI 爬虫访问（不计入普通访问统计）
-            $aiName = $this->detectAiBot($request);
-            if ($aiName && $postId) {
-                $this->recordAiReference($request, $postId, $aiName);
+            // 1. 先识别搜索引擎蜘蛛并记录（与 AI 访问分开统计）
+            $engineName = $this->detectSearchEngineBot($request);
+            if ($engineName && $postId) {
+                $this->recordSearchEngineVisit($request, $postId, $engineName);
+            }
+
+            // 2. 再识别 AI 爬虫访问（不计入普通访问统计）
+            if (! $engineName) {
+                $aiName = $this->detectAiBot($request);
+                if ($aiName && $postId) {
+                    $this->recordAiReference($request, $postId, $aiName);
+                }
             }
 
             if (! $this->shouldTrack($request)) {
@@ -193,6 +232,43 @@ class TrackVisit
         AiVisit::create([
             'post_id'    => $postId,
             'ai_name'    => $aiName,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'page_url'   => $request->fullUrl(),
+            'visited_at' => now(),
+        ]);
+    }
+
+    /**
+     * 识别当前请求是否来自已知搜索引擎蜘蛛
+     */
+    protected function detectSearchEngineBot(Request $request): ?string
+    {
+        $userAgent = strtolower($request->userAgent() ?? '');
+
+        if ($userAgent === '') {
+            return null;
+        }
+
+        foreach ($this->searchEngineBots as $name => $keywords) {
+            foreach ($keywords as $keyword) {
+                if (str_contains($userAgent, $keyword)) {
+                    return $name;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 记录搜索引擎蜘蛛访问明细
+     */
+    protected function recordSearchEngineVisit(Request $request, int $postId, string $engineName): void
+    {
+        SearchEngineVisit::create([
+            'post_id'    => $postId,
+            'engine_name' => $engineName,
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
             'page_url'   => $request->fullUrl(),
