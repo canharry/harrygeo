@@ -25,16 +25,74 @@ class ContentRenderer
      * 提取 Markdown 表格块并转换为 HTML table。
      *
      * 匹配规则：至少包含一个表头行和一个分隔行（|---|），以及可选的数据行。
+     *
+     * Trix 编辑器会把带换行的 Markdown 表格文本保存成 <div>行</div><div>行</div>
+     * 或 <br>、<p> 分隔的 HTML，因此需要先把这种被 HTML 包裹的表格块还原成纯
+     * Markdown，再交给 CommonMark 转换成 <table>。
      */
     protected static function convertMarkdownTables(string $content): string
     {
-        $pattern = '/^[ \t]*\|[^\n]*\|[ \t]*\r?\n[ \t]*\|(?:\s*:?-+:?\s*\|)+[ \t]*\r?\n(?:[ \t]*\|[^\n]*\|[ \t]*\r?\n?)*/m';
+        $pattern = '/
+            (?:<div[^>]*>\s*)?          # 可选的 <div> 块级包裹开头
+            [ \t]*\|[^\n]*\|            # 表头行
+            [ \t]*                      # 行尾空格
+            (?:
+                <br\s*\/?>              # HTML 换行
+                | <\/div>               # 结束上一个 <div>
+                | <\/p>                 # 结束上一个 <p>
+                | \r?\n                 # 原始 Markdown 换行
+            )
+            \s*
+            (?:
+                <div[^>]*>\s*           # 开始下一个 <div>
+                | <p[^>]*>\s*           # 开始下一个 <p>
+            )?
+            \s*
+            [ \t]*\|(?:[ \t]*:?-+:?[ \t]*\|)+[ \t]*  # 分隔行
+            \s*
+            (?:
+                <br\s*\/?>
+                | <\/div>
+                | <\/p>
+                | \r?\n
+            )
+            \s*
+            (?:
+                <div[^>]*>\s*
+                | <p[^>]*>\s*
+            )?
+            \s*
+            (?:
+                [ \t]*\|[^\n]*\|        # 数据行
+                \s*
+                (?:
+                    <br\s*\/?>
+                    | <\/div>
+                    | <\/p>
+                    | \r?\n
+                )?                       # 最后一行数据可能没有结尾换行
+                \s*
+                (?:
+                    <div[^>]*>\s*
+                    | <p[^>]*>\s*
+                )?
+                \s*
+            )*
+        /xi';
 
         return preg_replace_callback($pattern, function (array $matches): string {
-            $markdown = trim($matches[0], "\r\n");
+            $htmlBlock = $matches[0];
+
+            // 把 HTML 块还原成带 \n 的 Markdown
+            $markdown = $htmlBlock;
+            $markdown = preg_replace('/<br\s*\/?>/i', "\n", $markdown);
+            $markdown = preg_replace('/<\/p>\s*<p[^>]*>/i', "\n", $markdown);
+            $markdown = preg_replace('/<\/div>\s*<div[^>]*>/i', "\n", $markdown);
+            $markdown = preg_replace('/<\/?div[^>]*>|<\/?p[^>]*>/i', '', $markdown);
+            $markdown = trim($markdown, "\r\n");
 
             if (blank($markdown)) {
-                return $matches[0];
+                return $htmlBlock;
             }
 
             $converter = new GithubFlavoredMarkdownConverter([
